@@ -1,14 +1,12 @@
 #lang racket
 
 (require "fundamental.rkt")
+(require "generic-hash.rkt")
 (require "derivative.rkt")
 
-(provide add)
-(provide mul)
-(provide make-scalar)
-(provide make-tensor)
-(provide partial-deriv)
-(provide switch-index-tensor)
+(provide add mul partial-deriv)
+(provide make-scalar make-tensor)
+(provide get-index get-matrix switch-index)
 
 (define (transpose-mat mat) (accumulate-n cons '() mat))
 
@@ -48,19 +46,6 @@
 ;(move-index-mat 2 0 mat-3d) ;consistent
 
 ;;;
-
-(define *table* (make-hash))
-(define (get op type) (hash-ref *table* (list op type)))
-(define (put op type val) (hash-set! *table* (list op type) val))
-
-(define (apply-generic op . args)
-  (let ((type-tags (map type-tag args)))
-    (let ((proc (get op type-tags)))
-      (if proc
-          (apply proc (map contents args))
-          (error
-            "No method for these types -- APPLY-GENERIC"
-            (list op type-tags))))))
 
 (define (add x y) (apply-generic 'add x y))
 (define (mul x y) (apply-generic 'mul x y))
@@ -102,6 +87,9 @@
     (cons index-lst (map-n (length index-lst) make-scalar contents-matrix)))
   (define (get-index tnsr) (car tnsr))
   (define (get-matrix tnsr) (cdr tnsr))
+  (put 'get-index '(tensor) get-index)
+  (put 'get-matrix '(tensor) get-matrix)
+  
   ;In "add-tensor", no matter whether the indices of x and y match or not, it follows the index of x.
   (define (add-tensor x y)
     (define (add-tensor-contents x y)
@@ -147,7 +135,7 @@
   (put 'partial-deriv '(scalar tensor) (lambda (fx x) (tag (partial-deriv-scalar-over-tensor fx x))))
   (put 'partial-deriv '(tensor tensor) (lambda (fx x) (tag (partial-deriv-tensor-over-tensor fx x))))
   
-  (define (switch-index-tensor aim-index-lst x)
+  (define (switch-index aim-index-lst x)
     (define (switch-index-iter aim-index aim-index-lst orignal-index-lst contents-matrix)
       (if (> aim-index (- (length orignal-index-lst) 1))
           (cons aim-index-lst contents-matrix)
@@ -159,26 +147,29 @@
                                    (move-index-mat original-index aim-index contents-matrix))
                 (switch-index-iter (+ aim-index 1) aim-index-lst orignal-index-lst contents-matrix)))))
     (switch-index-iter 0 aim-index-lst (get-index x) (get-matrix x)))
-  (put 'switch-index-tensor 'tensor
-       (lambda (aim-index-lst x)(tag (switch-index-tensor aim-index-lst x)))))
+  (put 'switch-index 'tensor
+       (lambda (aim-index-lst x)(tag (switch-index aim-index-lst x)))))
 
 (install-tensor-package)
 (define (make-tensor index-lst contents-matrix)
   ((get 'make-tensor 'tensor) index-lst contents-matrix))
-(define (switch-index-tensor aim-index-lst tnsr)
-  ((get 'switch-index-tensor 'tensor) aim-index-lst (contents tnsr)))
+(define (switch-index aim-index-lst tnsr)
+  ((get 'switch-index 'tensor) aim-index-lst (contents tnsr)))
+
+(define (get-index x) (apply-generic 'get-index x))
+(define (get-matrix x) (apply-generic 'get-matrix x))
 
 ;(define ts (make-tensor (list 'a 'b) (list (list '(+ c d) 2) (list 3 4))))
 ;(add ts ts) ;'(tensor (a b) ((scalar + (+ c d) (+ c d)) (scalar . 4)) ((scalar . 6) (scalar . 8)))
 ;(define ts (make-tensor (list 'a 'b) (list (list 1 2) (list 3 4))))
-;(switch-index-tensor '(a b) ts)
-;(switch-index-tensor '(b a) ts)
+;(switch-index '(a b) ts)
+;(switch-index '(b a) ts)
 ;(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
-;(switch-index-tensor '(a b c) tss)
-;(switch-index-tensor '(b a c) tss)
-;(switch-index-tensor '(a c b) tss)
-;(switch-index-tensor '(b c a) tss)
-;(switch-index-tensor '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
+;(switch-index '(a b c) tss)
+;(switch-index '(b a c) tss)
+;(switch-index '(a c b) tss)
+;(switch-index '(b c a) tss)
+;(switch-index '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
 
 ;(define x (make-scalar 'x))
 ;(define ts (make-tensor (list 'a) (list '(+ x y z) '(* 2 w x))))
@@ -193,6 +184,6 @@
 ;(mul gj yi) ;correct
 
 ;(define ts (make-tensor (list '(_ a) '(^ b)) (list (list 1 2) (list 3 4))))
-;(switch-index-tensor '((_ a) (^ b)) ts); works
-;(switch-index-tensor '((^ b) (_ a)) ts); works
-;(switch-index-tensor '((^ a) (_ b)) ts); ERROR
+;(switch-index '((_ a) (^ b)) ts); works
+;(switch-index '((^ b) (_ a)) ts); works
+;(switch-index '((^ a) (_ b)) ts); ERROR

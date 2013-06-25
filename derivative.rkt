@@ -17,6 +17,7 @@
   (cond ((number? exp) 0)
         ((variable? exp)
          (if (same-variable? exp var) 1 0))
+        
         ((sum? exp)
          (make-sum (map
                     (lambda (arg-lst) (deriv arg-lst var)) 
