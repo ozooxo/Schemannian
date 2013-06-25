@@ -28,6 +28,15 @@
       done-seq
       (reverse (cdr torev-seq) (cons (car torev-seq) done-seq))))
 
+(define (index element lst) ;The first element has index 0
+  (define (index-iter element lst passed-index)
+    (cond ((null? lst) (error "Not find in list -- INDEX" element lst))
+          ((equal? (car lst) element) passed-index)
+          (else (index-iter element (cdr lst) (+ passed-index 1)))))
+  (index-iter element lst 0))
+
+;(index 5 (list 1 3 5 7)) ;2
+
 (define (map-n dim prop lst)
   (if (= dim 1)
       (map prop lst)
@@ -64,6 +73,8 @@
 (define (make-op op-func op-symb unit-num args)
   (let ([gathered-seq (gather-num op-func unit-num args)])
     (cond ((null? (cdr gathered-seq)) (car gathered-seq))
+          ((and (= (car gathered-seq) unit-num) (null? (cddr gathered-seq)))
+           (cadr gathered-seq))
           ((= (car gathered-seq) unit-num) (cons op-symb (cdr gathered-seq)))
           (else (cons op-symb gathered-seq)))))
 
@@ -73,13 +84,15 @@
 ;(make-sum (list 1 2 4)) ;7
 
 (define (product? x) (and (pair? x) (eq? (get-op x) '*)))
-(define (make-product args) ;(make-op * '* 1 args))
+(define (make-product args)
   (let ([result (make-op * '* 1 args)])
     (cond ((number? result) result)
+          ((symbol? result) result)
           ((eq? (cadr result) '0) 0)
           (else result))))
 
 ;(make-product (list 1 'a 2 'b 4 'c 'd)) ;'(* 8 a b c d)
+;(make-product (list '(+ a b c))) ;'(+ a b c)
 
 ;;;
 
