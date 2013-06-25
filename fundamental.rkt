@@ -2,6 +2,8 @@
 
 (provide (all-defined-out))
 
+;;;
+
 (define (variable? x) (symbol? x))
 (define (same-variable? v1 v2)
   (and (variable? v1) (variable? v2) (eq? v1 v2)))
@@ -29,12 +31,22 @@
 
 ;(index 5 (list 1 3 5 7)) ;2
 
-(define (map-n dim prop lst)
+;(define (map-n dim prop lst)
+;  (if (= dim 1)
+;      (map prop lst)
+;      (map (lambda (lst) (map-n (- dim 1) prop lst)) lst)))
+;In the above form, "prop" can only have one argument.
+;In the bottom form, arbitrary number of arguments are okay.
+(define (map-n dim prop . lst)
   (if (= dim 1)
-      (map prop lst)
-      (map (lambda (lst) (map-n (- dim 1) prop lst)) lst)))
+      (apply map (cons prop lst))
+      (apply map (cons (lambda lst (apply map-n (append (list (- dim 1) prop) lst))) lst))))
 
-;(map-n 2 (lambda (x) (+ 2 x)) (list (list 1 2) (list 3 4))) ;'((3 4) (5 6))
+;(define fx (lambda (x) (+ 2 x)))
+;(map-n 1 fx (list 1 2)) ;'(3 4)
+;(map-n 1 + (list 3 4) (list 1 2)) ;'(4 6)
+;(map-n 2 fx (list (list 1 2) (list 3 4))) ;'((3 4) (5 6))
+;(map-n 2 + (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8))) ;'((6 8) (10 12))
 
 (define (accumulate op initial sequence)
   (if (null? sequence)

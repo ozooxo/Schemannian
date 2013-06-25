@@ -3,12 +3,13 @@
 (require "fundamental.rkt")
 (require "generic-hash.rkt")
 (require "derivative.rkt")
+(require (only-in "linear-algebra.rkt" transpose-mat))
 
 (provide add mul partial-deriv)
 (provide make-scalar make-tensor)
 (provide get-index get-matrix switch-index)
 
-(define (transpose-mat mat) (accumulate-n cons '() mat))
+;;;
 
 (define (switch-index-withmat level lst)
   (if (= level 1)
@@ -92,14 +93,17 @@
   
   ;In "add-tensor", no matter whether the indices of x and y match or not, it follows the index of x.
   (define (add-tensor x y)
-    (define (add-tensor-contents x y)
-      (cond ((and (null? x) (null? y)) '())
-            ((and (scalar? (car x)) (scalar? (car y)))
-             (cons (add (car x) (car y)) (add-tensor-contents (cdr x) (cdr y))))
-            ((and (not (scalar? (car x))) (not (scalar? (car y))))
-             (cons (add-tensor-contents (car x) (car y)) (add-tensor-contents (cdr x) (cdr y))))
-            (else (error "Tensors don't match -- ADD-TENSOR" x y))))
-    (cons (get-index x) (add-tensor-contents (get-matrix x) (get-matrix y))))
+    (if (not (= (length (get-index x)) (length (get-index y))))
+        (error "Tensor dimensions don't match -- ADD-TENSOR" x y)
+        (cons (get-index x) (map-n (length (get-index x)) add (get-matrix x) (get-matrix y)))))
+;    (define (add-tensor-contents x y)
+;      (cond ((and (null? x) (null? y)) '())
+;            ((and (scalar? (car x)) (scalar? (car y)))
+;             (cons (add (car x) (car y)) (add-tensor-contents (cdr x) (cdr y))))
+;            ((and (not (scalar? (car x))) (not (scalar? (car y))))
+;             (cons (add-tensor-contents (car x) (car y)) (add-tensor-contents (cdr x) (cdr y))))
+;            (else (error "Tensors don't match -- ADD-TENSOR" x y))))
+;    (cons (get-index x) (add-tensor-contents (get-matrix x) (get-matrix y))))
   (define (mul-tensor-to-scalar tnsr sclr)
     (cons (get-index tnsr)
           (map-n (length (get-index tnsr))
@@ -165,6 +169,8 @@
 ;(switch-index '(a b) ts)
 ;(switch-index '(b a) ts)
 ;(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
+;(add tss tss) ;work
+;(add ts tss) ; Tensor dimensions don't match
 ;(switch-index '(a b c) tss)
 ;(switch-index '(b a c) tss)
 ;(switch-index '(a c b) tss)
