@@ -17,19 +17,39 @@
 
 ;;;
 
-(define (reverse torev-seq done-seq)
-  (if (eq? torev-seq '())
-      done-seq
-      (reverse (cdr torev-seq) (cons (car torev-seq) done-seq))))
+;(define (reverse torev-seq done-seq)
+;  (if (eq? torev-seq '())
+;      done-seq
+;      (reverse (cdr torev-seq) (cons (car torev-seq) done-seq))))
+
+;To be consistent with "list-ref" in Racket, The first element has index 0.
+(define (list-delete lst pos) 
+  (cond ((null? lst) (error "Index out of range"))
+        ((= 0 pos) (cdr lst))
+        (else (cons (car lst) (list-delete (cdr lst) (- pos 1))))))
+
+;(list-delete '(a b c d) 2) ;'(a b d)
+;(list-delete '(a b c d) 5) ;Index out of range
 
 (define (index element lst) ;The first element has index 0
   (define (index-iter element lst passed-index)
-    (cond ((null? lst) (error "Not find in list -- INDEX" element lst))
+    (cond ((null? lst) false);(error "Not find in list -- INDEX" element lst))
           ((equal? (car lst) element) passed-index)
           (else (index-iter element (cdr lst) (+ passed-index 1)))))
   (index-iter element lst 0))
 
 ;(index 5 (list 1 3 5 7)) ;2
+;(index 0 (list 1 3 5 7)) ;#f
+
+(define (index-in element nested-lst)
+  (define (index-in-iter nested-lst passed-index)
+    (cond ((null? nested-lst) false)
+          ((not (eq? (index element (car nested-lst)) false)) passed-index)
+          (else (index-in-iter (cdr nested-lst) (+ passed-index 1)))))
+  (index-in-iter nested-lst 0))
+
+;(index-in 'c '((a b) (c d) (e f))) ;1
+;(index-in 'g '((a b) (c d) (e f))) ;#f
 
 ;(define (map-n dim prop lst)
 ;  (if (= dim 1)
@@ -97,6 +117,28 @@
 
 ;(make-product (list 1 'a 2 'b 4 'c 'd)) ;'(* 8 a b c d)
 ;(make-product (list '(+ a b c))) ;'(+ a b c)
+
+(define (exponentiation? x) (and (pair? x) (eq? (car x) '**)))
+(define (base p) (cadr p))
+(define (exponent p) (caddr p))
+(define (make-exponentiation x n)
+  (cond ((=number? n 0) 1)
+        ((=number? n 1) x)
+        ((and (number? x) (number? n)) (expt x n))
+        (else (list '** x n))))
+
+(define (make-abs x)
+  (if (number? x)
+      (abs x)
+      (list 'abs x)))
+
+;(make-abs -3) ;3
+;(make-abs '(+ a b)) ;'(abs (+ a b))
+
+(define (sign n)
+  (if (number? n)
+      (if (even? n) 1 -1)
+      (make-exponentiation -1 n)))
 
 ;;;
 

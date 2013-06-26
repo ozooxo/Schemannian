@@ -4,15 +4,6 @@
 
 (provide deriv)
 
-(define (exponentiation? x) (and (pair? x) (eq? (car x) '**)))
-(define (base p) (cadr p))
-(define (exponent p) (caddr p))
-(define (make-exponentiation x n)
-  (cond ((=number? n 0) 1)
-        ((=number? n 1) x)
-        ((and (number? x) (number? n)) (expt x n))
-        (else (list '** x n))))
-
 (define (deriv exp var)
   (cond ((number? exp) 0)
         ((variable? exp)

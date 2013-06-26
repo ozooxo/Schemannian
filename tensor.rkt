@@ -84,6 +84,11 @@
   ;In "make-tensor", the index-lst doesn't care about the Einstein Summation at all.
   ;However, it works if the index-lst includes the information of the upper/lower indices.
   ;The convenience in riemannian.rkt is "let ([index-lst (list '(_ a) '(^ b) '(_ c))])".
+  ;
+  ;Notice that for "x_ab", "a" describes the other chain while "b" describes the inner chain.
+  ;So it is (transpose x_ab) = '((_ _ _)
+  ;                              (_ _ _)
+  ;                              (_ _ _)) in Racket's list notation system.
   (define (make-tensor index-lst contents-matrix)
     (cons index-lst (map-n (length index-lst) make-scalar contents-matrix)))
   (define (get-index tnsr) (car tnsr))
@@ -168,12 +173,12 @@
 ;(define ts (make-tensor (list 'a 'b) (list (list 1 2) (list 3 4))))
 ;(switch-index '(a b) ts)
 ;(switch-index '(b a) ts)
-;(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
+(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
 ;(add tss tss) ;work
 ;(add ts tss) ; Tensor dimensions don't match
-;(switch-index '(a b c) tss)
-;(switch-index '(b a c) tss)
-;(switch-index '(a c b) tss)
+(switch-index '(a b c) tss)
+(switch-index '(b a c) tss)
+(switch-index '(a c b) tss)
 ;(switch-index '(b c a) tss)
 ;(switch-index '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
 
