@@ -1,13 +1,17 @@
 #lang racket
 
-(require "fundamental.rkt")
-(require "generic-hash.rkt")
+(require "generic-hash.rkt" "fundamental.rkt")
 (require "derivative.rkt")
 (require (only-in "linear-algebra.rkt" transpose-mat))
 
+;(provide (except-out (all-from-out racket)
+;                     switch-index-withmat
+;                     switch-index-mat
+;                     index-withmat
+;                     move-index-mat))
 (provide add mul partial-deriv)
 (provide make-scalar make-tensor)
-(provide get-index get-matrix switch-index)
+(provide get-index get-matrix get-matrix-without-tag change-index switch-index)
 
 ;;;
 
@@ -80,6 +84,7 @@
 ;(partial-deriv gx x) ;'(scalar * y z)
 
 (define (install-tensor-package)
+  ;For the tensor defined here, the degree of freedom belong to every indices need not be the same.
   (define (tag x) (attach-tag 'tensor x))
   ;In "make-tensor", the index-lst doesn't care about the Einstein Summation at all.
   ;However, it works if the index-lst includes the information of the upper/lower indices.
@@ -91,10 +96,16 @@
   ;                              (_ _ _)) in Racket's list notation system.
   (define (make-tensor index-lst contents-matrix)
     (cons index-lst (map-n (length index-lst) make-scalar contents-matrix)))
+  (put 'make-tensor 'tensor (lambda (i m) (tag (make-tensor i m))))
+  
   (define (get-index tnsr) (car tnsr))
   (define (get-matrix tnsr) (cdr tnsr))
   (put 'get-index '(tensor) get-index)
   (put 'get-matrix '(tensor) get-matrix)
+  
+  (define (get-matrix-without-tag tnsr)
+    (map-n (length (get-index tnsr)) contents (get-matrix tnsr)))
+  (put 'get-matrix-without-tag '(tensor) get-matrix-without-tag)
   
   ;In "add-tensor", no matter whether the indices of x and y match or not, it follows the index of x.
   (define (add-tensor x y)
@@ -119,7 +130,6 @@
           (map-n (length (get-index tnsr1)) 
                  (lambda (t) (get-matrix (contents (mul t (tag tnsr2)))))
                  (get-matrix tnsr1))))
-  (put 'make-tensor 'tensor (lambda (i m) (tag (make-tensor i m))))
   (put 'add '(tensor tensor) (lambda (x y) (tag (add-tensor x y))))
   (put 'mul '(tensor scalar) (lambda (x y) (tag (mul-tensor-to-scalar x y))))
   (put 'mul '(scalar tensor) (lambda (x y) (tag (mul-tensor-to-scalar y x)))) ;We assume commutativity of scalars in here.
@@ -144,6 +154,7 @@
   (put 'partial-deriv '(scalar tensor) (lambda (fx x) (tag (partial-deriv-scalar-over-tensor fx x))))
   (put 'partial-deriv '(tensor tensor) (lambda (fx x) (tag (partial-deriv-tensor-over-tensor fx x))))
   
+  (define (change-index aim-index-lst tnsr) (cons aim-index-lst (get-matrix tnsr)))
   (define (switch-index aim-index-lst x)
     (define (switch-index-iter aim-index aim-index-lst orignal-index-lst contents-matrix)
       (if (> aim-index (- (length orignal-index-lst) 1))
@@ -156,30 +167,39 @@
                                    (move-index-mat original-index aim-index contents-matrix))
                 (switch-index-iter (+ aim-index 1) aim-index-lst orignal-index-lst contents-matrix)))))
     (switch-index-iter 0 aim-index-lst (get-index x) (get-matrix x)))
+  (put 'change-index 'tensor
+       (lambda (aim-index-lst x)(tag (change-index aim-index-lst x))))
   (put 'switch-index 'tensor
-       (lambda (aim-index-lst x)(tag (switch-index aim-index-lst x)))))
+       (lambda (aim-index-lst x)(tag (switch-index aim-index-lst x))))
+  )
 
 (install-tensor-package)
 (define (make-tensor index-lst contents-matrix)
   ((get 'make-tensor 'tensor) index-lst contents-matrix))
-(define (switch-index aim-index-lst tnsr)
-  ((get 'switch-index 'tensor) aim-index-lst (contents tnsr)))
 
 (define (get-index x) (apply-generic 'get-index x))
 (define (get-matrix x) (apply-generic 'get-matrix x))
+(define (get-matrix-without-tag x) (apply-generic 'get-matrix-without-tag x))
+
+(define (change-index aim-index-lst tnsr)
+  ((get 'change-index 'tensor) aim-index-lst (contents tnsr)))
+(define (switch-index aim-index-lst tnsr)
+  ((get 'switch-index 'tensor) aim-index-lst (contents tnsr)))
 
 ;(define ts (make-tensor (list 'a 'b) (list (list '(+ c d) 2) (list 3 4))))
+;(get-matrix-without-tag ts) ;'(((+ c d) 2) (3 4))
 ;(add ts ts) ;'(tensor (a b) ((scalar + (+ c d) (+ c d)) (scalar . 4)) ((scalar . 6) (scalar . 8)))
 ;(define ts (make-tensor (list 'a 'b) (list (list 1 2) (list 3 4))))
 ;(switch-index '(a b) ts)
 ;(switch-index '(b a) ts)
-(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
+;(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
 ;(add tss tss) ;work
 ;(add ts tss) ; Tensor dimensions don't match
-(switch-index '(a b c) tss)
-(switch-index '(b a c) tss)
-(switch-index '(a c b) tss)
+;(switch-index '(a b c) tss)
+;(switch-index '(b a c) tss)
+;(switch-index '(a c b) tss)
 ;(switch-index '(b c a) tss)
+;(change-index '(c b a) tss)
 ;(switch-index '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
 
 ;(define x (make-scalar 'x))

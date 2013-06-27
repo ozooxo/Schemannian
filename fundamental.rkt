@@ -17,7 +17,8 @@
 
 ;;;
 
-;(define (reverse torev-seq done-seq)
+;It is not the same as the Racket "reverse", as it has two arguments.
+;(define (list-reverse torev-seq done-seq)
 ;  (if (eq? torev-seq '())
 ;      done-seq
 ;      (reverse (cdr torev-seq) (cons (car torev-seq) done-seq))))
@@ -30,6 +31,17 @@
 
 ;(list-delete '(a b c d) 2) ;'(a b d)
 ;(list-delete '(a b c d) 5) ;Index out of range
+
+;It works exactly the same as the function "take" while (require racket/list).
+(define (list-take lst pos)
+  (define (list-flip new-lst old-lst count)
+    (cond ((= 0 count) new-lst)
+          ((null? old-lst) (error "Position doesn't exist in list" pos lst))
+          (else (list-flip (cons (car old-lst) new-lst) (cdr old-lst) (- count 1)))))
+  (reverse (list-flip '() lst pos)))
+
+;(list-take '(1 2 3 4) 3) ;'(1 2 3)
+;(list-take '(1 2 3 4) 6) ;error
 
 (define (index element lst) ;The first element has index 0
   (define (index-iter element lst passed-index)
