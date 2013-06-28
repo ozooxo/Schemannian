@@ -116,6 +116,13 @@
 
 ;;;
 
+(define (merge-same-op is-op? args)
+  (define (merge-same-op-recur args)
+    (cond ((null? args) '())
+          ((is-op? (car args)) (append (get-arg-lst (car args)) (merge-same-op-recur (cdr args))))
+          (else (cons (car args) (merge-same-op-recur (cdr args))))))
+  (merge-same-op-recur args))
+
 (define (make-op op-func op-symb unit-num args)
   (let ([gathered-seq (gather-num op-func unit-num args)])
     (cond ((null? (cdr gathered-seq)) (car gathered-seq))
@@ -125,19 +132,20 @@
           (else (cons op-symb gathered-seq)))))
 
 (define (sum? x) (and (pair? x) (eq? (get-op x) '+)))
-(define (make-sum args) (make-op + '+ 0 args))
+(define (make-sum args) (make-op + '+ 0 (merge-same-op sum? args)))
 
-;(make-sum (list 1 2 4)) ;7
+;(merge-same-op sum? '(1 2 (+ 3 4) (* 5 6))) ;'(1 2 3 4 (* 5 6))
+;(make-sum '(a b (+ 1 c) 3 (* 2 b))) ;'(+ 4 a b c (* 2 b))
 
 (define (product? x) (and (pair? x) (eq? (get-op x) '*)))
 (define (make-product args)
-  (let ([result (make-op * '* 1 args)])
+  (let ([result (make-op * '* 1 (merge-same-op product? args))])
     (cond ((number? result) result)
           ((symbol? result) result)
           ((eq? (cadr result) '0) 0)
           (else result))))
 
-;(make-product (list 1 'a 2 'b 4 'c 'd)) ;'(* 8 a b c d)
+;(make-product '(1 a (* 2 f e) b 4 c (+ 4 d))) ;'(* 8 a f e b c (+ 4 d))
 ;(make-product (list '(+ a b c))) ;'(+ a b c)
 
 (define (exponentiation? x) (and (pair? x) (eq? (car x) '**)))
@@ -149,10 +157,10 @@
         ((and (number? x) (number? n)) (expt x n))
         (else (list '** x n))))
 
-(define (make-abs x)
-  (if (number? x)
-      (abs x)
-      (list 'abs x)))
+(define (make-abs x) (if (number? x) (abs x) (list 'abs x)))
+(define (make-log x) (if (number? x) (log x) (list 'log x)))
+(define (make-sin x) (if (number? x) (sin x) (list 'sin x)))
+(define (make-cos x) (if (number? x) (cos x) (list 'cos x)))
 
 ;(make-abs -3) ;3
 ;(make-abs '(+ a b)) ;'(abs (+ a b))
@@ -161,6 +169,9 @@
   (if (number? n)
       (if (even? n) 1 -1)
       (make-exponentiation -1 n)))
+
+;The simplification of elementary arithmetic is really hard to write ...
+;Need to think carefully for a more organized way to do that ...
 
 ;;;
 

@@ -1,7 +1,7 @@
 #lang racket
 
 (require "generic-hash.rkt" "fundamental.rkt")
-(require "derivative.rkt")
+(require "calculus.rkt")
 (require (only-in "linear-algebra.rkt" transpose-mat))
 
 (provide (all-defined-out))

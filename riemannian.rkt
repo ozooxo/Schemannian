@@ -154,7 +154,17 @@
    ;  ((^ i) (_ j) (_ k))
    ;  (((scalar * (1/2)(* x2 (** (* x2 x1) -1))) (scalar . 0)) ((scalar . 0) (scalar . 0)))
    ;  (((scalar . 0) (scalar . 0)) ((scalar . 0) (scalar * (1/2)(* x1 (** (* x2 x1) -1))))))
-;(christoffel '((^ i) (_ j) (^ k)) g '(x1 x2)) ;index error
+;;;(christoffel '((^ i) (_ j) (^ k)) g '(x1 x2)) ;index error
 ;(define r_abcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) gamma '(x1 x2)))
 ;(define r_ab (ricci-curvature-tensor '((_ a) (_ b)) r_abcd)) ;It is symmetric right now.
 ;(ricci-scalar g r_ab) ;works. no simplification. so currently can't check whether right or now.
+
+(define g (make-tensor '((_ a) (_ b)) 
+                       '(((+ 1 (* -1 rs (** r -1))) 0 0 0)
+                         (0 (* -1 (** (+ 1 (* -1 rs (** r -1))) -1)) 0 0)
+                         (0 0 (* -1 (** r 2)) 0)
+                         (0 0 0 (* -1 (** r 2) (** (sin theta) 2))))))
+(define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) g '(t r theta phi)))
+(define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(t r theta phi)))
+(define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
+(ricci-scalar g R_ab)
