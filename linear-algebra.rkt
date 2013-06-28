@@ -45,12 +45,14 @@
 ;(matrix-*-matrix m m) ;'(((+ (* b b) (* c c)) (+ (* b e) (* 3 c))) ((+ (* e b) (* 3 c)) (+ 9 (* e e))))
 
 (define (mat-trace m)
-  (if (null? (cdr (car m)))
-      (car (car m))
-      (make-sum (list (car (car m)) (mat-trace (map cdr (cdr m)))))))
+  (define (diagonal-lst m)
+    (if (null? m)
+        '()
+        (cons (car (car m)) (diagonal-lst (map cdr (cdr m))))))
+  (make-sum (diagonal-lst m)))
 
 ;(mat-trace '((1 2 3) (4 5 6) (7 8 9))) ;15
-;(mat-trace '((a b c) (d e f) (g h i))) ;'(+ a (+ e i))
+;(mat-trace '((a b c) (d e f) (g h i))) ;'(+ a e i)
 
 (define (mat-delete-column m pos) (list-delete m pos))
 (define (mat-delete-row m pos) (map (lambda (lst) (list-delete lst pos)) m))

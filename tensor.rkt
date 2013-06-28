@@ -4,51 +4,7 @@
 (require "derivative.rkt")
 (require (only-in "linear-algebra.rkt" transpose-mat))
 
-;(provide (except-out (all-from-out racket)
-;                     switch-index-withmat
-;                     switch-index-mat
-;                     index-withmat
-;                     move-index-mat))
-(provide add mul partial-deriv)
-(provide make-scalar make-tensor)
-(provide get-index get-matrix get-matrix-without-tag change-index switch-index)
-
-;;;
-
-(define (switch-index-withmat level lst)
-  (if (= level 1)
-      (cons (cadr lst) (cons (car lst) (cddr lst)))
-      (cons (car lst) (switch-index-withmat (- level 1) (cdr lst)))))
-(define (switch-index-mat level mat) ;For tensor Xabcd, level 1 is a<=>b, level 2 is b<=>c ...
-  (if (= level 1)
-      (transpose-mat mat)
-      (map (lambda (mat) (switch-index-mat (- level 1) mat)) mat)))
-
-;(switch-index-withmat 1 '(a b c d)) ;'(b a c d)
-;(switch-index-withmat 2 '(a b c d)) ;'(a c b d)
-;(switch-index-withmat 3 '(a b c d)) ;'(a b d c)
-;(define mat (list (list 1 2) (list 3 4)))
-;(define tam (list (list 5 6) (list 7 8)))
-;(define mat-3d (list mat tam))
-;(transpose-mat mat) ;'((1 3) (2 4))
-;(switch-index-mat 1 (switch-index-mat 2 (switch-index-mat 1 mat-3d))) ;
-;(switch-index-mat 2 (switch-index-mat 1 (switch-index-mat 2 mat-3d))) ;consistent
-
-(define (move-index-withmat from-level to-level lst)
-  (cond ((= from-level to-level) lst)
-        ((< from-level to-level) (switch-index-withmat to-level (move-index-withmat from-level (- to-level 1) lst)))
-        ((> from-level to-level) (switch-index-withmat (+ to-level 1) (move-index-withmat from-level (+ to-level 1) lst)))))
-(define (move-index-mat from-level to-level mat)
-  (cond ((= from-level to-level) mat)
-        ((< from-level to-level) (switch-index-mat to-level (move-index-mat from-level (- to-level 1) mat)))
-        ((> from-level to-level) (switch-index-mat (+ to-level 1) (move-index-mat from-level (+ to-level 1) mat)))))
-
-;(move-index-withmat 1 3 '(a b c d)) ;'(a c d b)
-;(move-index-withmat 3 1 '(a b c d)) ;'(a d b c)
-;(switch-index-mat 2 (switch-index-mat 1 mat-3d))
-;(move-index-mat 0 2 mat-3d) ;consistent
-;(switch-index-mat 1 (switch-index-mat 2 mat-3d))
-;(move-index-mat 2 0 mat-3d) ;consistent
+(provide (all-defined-out))
 
 ;;;
 
@@ -84,6 +40,41 @@
 ;(partial-deriv gx x) ;'(scalar * y z)
 
 (define (install-tensor-package)
+  (define (switch-index-withmat level lst)
+    (if (= level 1)
+        (cons (cadr lst) (cons (car lst) (cddr lst)))
+        (cons (car lst) (switch-index-withmat (- level 1) (cdr lst)))))
+  (define (switch-index-mat level mat) ;For tensor Xabcd, level 1 is a<=>b, level 2 is b<=>c ...
+    (if (= level 1)
+        (transpose-mat mat)
+        (map (lambda (mat) (switch-index-mat (- level 1) mat)) mat)))
+  ;(switch-index-withmat 1 '(a b c d)) ;'(b a c d)
+  ;(switch-index-withmat 2 '(a b c d)) ;'(a c b d)
+  ;(switch-index-withmat 3 '(a b c d)) ;'(a b d c)
+  ;(define mat (list (list 1 2) (list 3 4)))
+  ;(define tam (list (list 5 6) (list 7 8)))
+  ;(define mat-3d (list mat tam))
+  ;(transpose-mat mat) ;'((1 3) (2 4))
+  ;(switch-index-mat 1 (switch-index-mat 2 (switch-index-mat 1 mat-3d))) ;
+  ;(switch-index-mat 2 (switch-index-mat 1 (switch-index-mat 2 mat-3d))) ;consistent
+  
+  (define (move-index-withmat from-level to-level lst)
+    (cond ((= from-level to-level) lst)
+          ((< from-level to-level) (switch-index-withmat to-level (move-index-withmat from-level (- to-level 1) lst)))
+          ((> from-level to-level) (switch-index-withmat (+ to-level 1) (move-index-withmat from-level (+ to-level 1) lst)))))
+  (define (move-index-mat from-level to-level mat)
+    (cond ((= from-level to-level) mat)
+          ((< from-level to-level) (switch-index-mat to-level (move-index-mat from-level (- to-level 1) mat)))
+          ((> from-level to-level) (switch-index-mat (+ to-level 1) (move-index-mat from-level (+ to-level 1) mat)))))
+  ;(move-index-withmat 1 3 '(a b c d)) ;'(a c d b)
+  ;(move-index-withmat 3 1 '(a b c d)) ;'(a d b c)
+  ;(switch-index-mat 2 (switch-index-mat 1 mat-3d))
+  ;(move-index-mat 0 2 mat-3d) ;consistent
+  ;(switch-index-mat 1 (switch-index-mat 2 mat-3d))
+  ;(move-index-mat 2 0 mat-3d) ;consistent
+  
+  ;;;
+  
   ;For the tensor defined here, the degree of freedom belong to every indices need not be the same.
   (define (tag x) (attach-tag 'tensor x))
   ;In "make-tensor", the index-lst doesn't care about the Einstein Summation at all.
@@ -112,14 +103,6 @@
     (if (not (= (length (get-index x)) (length (get-index y))))
         (error "Tensor dimensions don't match -- ADD-TENSOR" x y)
         (cons (get-index x) (map-n (length (get-index x)) add (get-matrix x) (get-matrix y)))))
-;    (define (add-tensor-contents x y)
-;      (cond ((and (null? x) (null? y)) '())
-;            ((and (scalar? (car x)) (scalar? (car y)))
-;             (cons (add (car x) (car y)) (add-tensor-contents (cdr x) (cdr y))))
-;            ((and (not (scalar? (car x))) (not (scalar? (car y))))
-;             (cons (add-tensor-contents (car x) (car y)) (add-tensor-contents (cdr x) (cdr y))))
-;            (else (error "Tensors don't match -- ADD-TENSOR" x y))))
-;    (cons (get-index x) (add-tensor-contents (get-matrix x) (get-matrix y))))
   (define (mul-tensor-to-scalar tnsr sclr)
     (cons (get-index tnsr)
           (map-n (length (get-index tnsr))
@@ -155,6 +138,9 @@
   (put 'partial-deriv '(tensor tensor) (lambda (fx x) (tag (partial-deriv-tensor-over-tensor fx x))))
   
   (define (change-index aim-index-lst tnsr) (cons aim-index-lst (get-matrix tnsr)))
+  ;For "switch-index", it seems work when two of the indices are identical (I may need a stronger argument for that).
+  ;However, if "X_abc != X_acb", then "X_abb" just chooses one possibility to show, which doesn't matter if we
+  ;finally take the trace for Einstein Summation.
   (define (switch-index aim-index-lst x)
     (define (switch-index-iter aim-index aim-index-lst orignal-index-lst contents-matrix)
       (if (> aim-index (- (length orignal-index-lst) 1))
@@ -167,10 +153,10 @@
                                    (move-index-mat original-index aim-index contents-matrix))
                 (switch-index-iter (+ aim-index 1) aim-index-lst orignal-index-lst contents-matrix)))))
     (switch-index-iter 0 aim-index-lst (get-index x) (get-matrix x)))
-  (put 'change-index 'tensor
-       (lambda (aim-index-lst x)(tag (change-index aim-index-lst x))))
-  (put 'switch-index 'tensor
-       (lambda (aim-index-lst x)(tag (switch-index aim-index-lst x))))
+  (put 'change-index '(expression tensor)
+       (lambda (aim-index-lst x) (tag (change-index aim-index-lst x))))
+  (put 'switch-index '(expression tensor)
+       (lambda (aim-index-lst x) (tag (switch-index aim-index-lst x))))
   )
 
 (install-tensor-package)
@@ -181,10 +167,10 @@
 (define (get-matrix x) (apply-generic 'get-matrix x))
 (define (get-matrix-without-tag x) (apply-generic 'get-matrix-without-tag x))
 
-(define (change-index aim-index-lst tnsr)
-  ((get 'change-index 'tensor) aim-index-lst (contents tnsr)))
-(define (switch-index aim-index-lst tnsr)
-  ((get 'switch-index 'tensor) aim-index-lst (contents tnsr)))
+(define (change-index aim-index-lst tnsr) (apply-generic 'change-index aim-index-lst tnsr))
+(define (switch-index aim-index-lst tnsr) (apply-generic 'switch-index aim-index-lst tnsr))
+
+(define (scalar-mul k x) (mul (make-scalar k) x))
 
 ;(define ts (make-tensor (list 'a 'b) (list (list '(+ c d) 2) (list 3 4))))
 ;(get-matrix-without-tag ts) ;'(((+ c d) 2) (3 4))
@@ -199,13 +185,18 @@
 ;(switch-index '(b a c) tss)
 ;(switch-index '(a c b) tss)
 ;(switch-index '(b c a) tss)
+;(switch-index '(c a b) tss)
 ;(change-index '(c b a) tss)
 ;(switch-index '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
+
+;(define tsss (make-tensor '(a a b) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
+;(switch-index '(b a a) tsss)
 
 ;(define x (make-scalar 'x))
 ;(define ts (make-tensor (list 'a) (list '(+ x y z) '(* 2 w x))))
 ;(mul ts x) ;'(tensor (a) (scalar * (+ x y z) x) (scalar * (* 2 w x) x))
 ;(mul x ts) ;'(tensor (a) (scalar * (+ x y z) x) (scalar * (* 2 w x) x))
+;(scalar-mul 'x ts)
 ;(partial-deriv ts x) ;'(tensor (a) (scalar . 1) (scalar * 2 w))
 ;(define yi (make-tensor (list 'a) (list 'x 'y 'z)))
 ;(define h (make-scalar '(* x y)))
