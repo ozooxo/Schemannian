@@ -23,18 +23,18 @@ Expressions
 
 Following the Lisp family rule, "Schemennian" uses prefix notations. Every value in a list can be either a number or a symbol. It currently has only limited number of operations (which are noted as symbols), including ``'+``, ``'*``, ``'**`` (exponential function), ``'log``, ``'sin``, and ``'cos``.
 
-For example, (3 * a * sin(c))\ :sup:`2`\ + d can be written as
+For example, :math:`(3 a \sin c)^2 + d` can be written as
 
-:: code:: scheme
+::
 
     '(+ (** (* 3 a ('sin c)) 2) d)
 
 Basic Calculus
 --------------
 
-"Schemannian" can do derivation (by using chain rule) and kindergarten level integral. However, as it currently only have extremely weak ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
+"Schemannian" can do chain rule level derivations and kindergarten level integrals. However, as it currently only have extremely weak ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
 
-:: code:: scheme
+::
 
     (require "calculus.rkt")
 
@@ -44,7 +44,7 @@ Basic Calculus
 Linear Algebra
 --------------
 
-"Schemannian" vectors are one-dimensional scheme list such as ``'(1 2 a 3 b)``, and matrices are two-dimensional list such as ``'((a 1) (2 b)``. Current functions includes
+"Schemannian" vectors are one-dimensional scheme list such as ``'(1 2 a 3 b)``, and matrices are two-dimensional list such as ``'((a 1) (2 b))``. Current supported functions includes
 
 .. code:: scheme
 
@@ -60,14 +60,14 @@ Linear Algebra
 Tensor Operations
 -----------------
 
-You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst>)``. ``<index-lst>`` can be any possible scheme list, e.g. ``'(a b c)``; however, the system is compatible with the kind of more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``.
+You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst>)``. ``<index-lst>`` can be any possible scheme list, form the most simplified case ``'(a b c)`` to the more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``.
 
 Tensor operations includes: ``add``, which can add two scalars or two tensors with the same form; ``mul``, which can multiply two scalars, one scalar and one tensor (by means of scalar multiplication), and two tensors (by means of tensor product); and ``partial-deriv``, which results higher ranked tensors.
 
 Riemannian Geometry and General Relativity Calculations
 -------------------------------------------------------
 
-"Schemannian" is capable to calculate Riemann curvature tensor, Ricci curvature tensor, and Ricci scalar from the metric (which is treated as a rank-2 tensor). However, it currently doesn't know how to simplify the result.
+"Schemannian" is capable to calculate Riemann curvature tensor, Ricci curvature tensor, and Ricci scalar from the metric (which is treated as a rank-2 tensor). However, it currently still doesn't know how to simplify the result.
 
 Here is an example to calculate the Ricci scalar of the Schwarzschild metric:
 
