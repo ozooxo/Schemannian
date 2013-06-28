@@ -50,11 +50,19 @@
       (make-tensor
        (list-take (get-index tnsr) len)
        (map-n len mat-trace (get-matrix-without-tag tnsr)))))
-  (let ([new-index (list-same-right (get-index tnsr))])
-    (if new-index
-        (einstein-summation (tensor-trace (switch-index new-index tnsr)))
-        tnsr)))
+  (if (= (length (get-index tnsr)) 2)
+      (if (eq? (cadr (car (get-index tnsr))) (cadr (cadr (get-index tnsr))))
+          (make-scalar (mat-trace (get-matrix-without-tag tnsr)))
+          tnsr)
+      (let ([new-index (list-same-right (get-index tnsr))])
+        (if new-index
+            (einstein-summation (tensor-trace (switch-index new-index tnsr)))
+            tnsr))))
 
+;(define t (make-tensor '((^ a) (_ a)) '((a b) (c d))))
+;(einstein-summation t) ;'(scalar + a d)
+;(define s (make-tensor '((^ a) (_ b)) '((a b) (c d))))
+;(einstein-summation s)
 ;(define ts (make-tensor '((_ b) (^ a) (^ b)) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
 ;(einstein-summation ts) ;'(tensor (a) (scalar . 7) (scalar . 11))
 ;(define tss (make-tensor '((_ a) (^ b) (^ c)) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
@@ -88,20 +96,65 @@
             (eq? (car (car index-lst)) '^)
             (eq? (car (cadr index-lst)) '_)
             (eq? (car (caddr index-lst)) '_))
-      (error "Christoffel symbol needs 3 indices, super-sub-sub in order. You give" index-lst)
-      (let ([first-term (partial-deriv (change-index (list '(_ dummy) (cadr index-lst)) g-tensor)
-                                       (make-tensor (list (caddr index-lst)) coordinate-lst))])
-        (einstein-summation
-         (mul
-          (change-index (list (car index-lst) '(^ dummy)) (metric '(^ ^) g-tensor))
-          (scalar-mul
-           (/ 1 2)
-           (add first-term 
-                (add (switch-index (list '(_ dummy) (caddr index-lst) (cadr index-lst)) first-term)
-                     (scalar-mul 
-                      -1 
-                      (switch-index (list (cadr index-lst) (caddr index-lst) '(_ dummy)) first-term))))))))))
+      (error "Christoffel symbol needs 3 indices, has super-sub-sub in order. You give" index-lst)
+      (let ([first-term (partial-deriv (change-index '((_ dummy) (_ j)) g-tensor)
+                                       (make-tensor '((_ k)) coordinate-lst))])
+        (change-index
+         index-lst
+         (einstein-summation
+          (mul
+           (change-index '((^ i) (^ dummy)) (metric '(^ ^) g-tensor))
+           (scalar-mul
+            (/ 1 2)
+            (add first-term 
+                 (add (switch-index '((_ dummy) (_ k) (_ j)) first-term)
+                      (scalar-mul -1 (switch-index '((_ j) (_ k) (_ dummy)) first-term)))))))))))
+
+(define (riemann-tensor index-lst christoffel-gamma coordinate-lst)
+  (if (nand (= 4 (length index-lst))
+            (eq? (car (car index-lst)) '^)
+            (eq? (car (cadr index-lst)) '_)
+            (eq? (car (caddr index-lst)) '_)
+            (eq? (car (cadddr index-lst)) '_))
+      (error "Riemann curvature tensor needs 4 indices, has super-sub-sub-sub in order. You give" index-lst)
+      (let* ([gamma (change-index '((^ i) (_ l) (_ j)) christoffel-gamma)]
+             [partial-gamma (partial-deriv gamma (make-tensor '((_ k)) coordinate-lst))])
+        (change-index
+         index-lst
+         (add
+          (add (switch-index '((^ i) (_ j) (_ k) (_ l)) partial-gamma)
+               (scalar-mul -1 (switch-index '((^ i) (_ k) (_ j) (_ l)) partial-gamma)))
+          (switch-index
+           '((^ i) (_ j) (_ k) (_ l))
+           (add (einstein-summation
+                 (mul (change-index '((^ i) (_ k) (_ dummy)) gamma)
+                      (change-index '((^ dummy) (_ l) (_ j)) gamma)))
+                (einstein-summation
+                 (mul (change-index '((^ i) (_ l) (_ dummy)) gamma)
+                      (change-index '((^ dummy) (_ k) (_ j)) gamma))))))))))
+
+(define (ricci-curvature-tensor index-lst riemann-tnsr)
+  (if (nand (= 2 (length index-lst))
+            (eq? (car (car index-lst)) '_)
+            (eq? (car (cadr index-lst)) '_))
+      (error "Ricci curvature tensor needs 2 indices, has sub-sub in order. You give" index-lst)
+      (change-index
+       index-lst
+       (einstein-summation
+        (change-index  '((^ k) (_ i) (_ k) (_ j)) riemann-tnsr)))))
+
+(define (ricci-scalar g-tnsr ricci-tnsr)
+  (einstein-summation
+   (mul (change-index '((^ i) (^ j)) (metric '(^ ^) g-tnsr))
+        (change-index '((_ j) (_ i)) ricci-tnsr))))
 
 ;(define g (make-tensor '((_ a) (_ b)) '((x1 0) (0 x2))))
-;(christoffel '((^ i) (_ j) (_ k)) g '(x1 x2)) ;seems work, no simplification right now.
-;(christoffel '((^ i) (_ j) (^ k)) g '(x1 x2)) ;error
+;(define gamma (christoffel '((^ i) (_ j) (_ k)) g '(x1 x2))) ;seems work, no simplification right now.
+   ;'(tensor
+   ;  ((^ i) (_ j) (_ k))
+   ;  (((scalar * (1/2)(* x2 (** (* x2 x1) -1))) (scalar . 0)) ((scalar . 0) (scalar . 0)))
+   ;  (((scalar . 0) (scalar . 0)) ((scalar . 0) (scalar * (1/2)(* x1 (** (* x2 x1) -1))))))
+;(christoffel '((^ i) (_ j) (^ k)) g '(x1 x2)) ;index error
+;(define r_abcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) gamma '(x1 x2)))
+;(define r_ab (ricci-curvature-tensor '((_ a) (_ b)) r_abcd)) ;It is symmetric right now.
+;(ricci-scalar g r_ab) ;works. no simplification. so currently can't check whether right or now.

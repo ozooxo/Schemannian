@@ -169,7 +169,7 @@
     (if (null? arg-lst)
         '()
         (cons 
-         (reverse passed-arg-lst (cons (prop (car arg-lst)) (cdr arg-lst)))
+         (list-reverse passed-arg-lst (cons (prop (car arg-lst)) (cdr arg-lst)))
          (map-derivation-iter prop (cdr arg-lst) (cons (car arg-lst) passed-arg-lst)))))
   (make-sum (map op
                  (map-derivation-iter proc arg-lst '()))))

@@ -188,6 +188,8 @@
 ;(switch-index '(c a b) tss)
 ;(change-index '(c b a) tss)
 ;(switch-index '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
+;(define xi  (make-tensor (list 'd) (list 'x 'y)))
+;(partial-deriv tss xi)
 
 ;(define tsss (make-tensor '(a a b) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
 ;(switch-index '(b a a) tsss)
