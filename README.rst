@@ -27,7 +27,7 @@ For example, :math:`(3 a \sin c)^2 + d` can be written as
 
 .. code:: scheme
 
-    '(+ (** (* 3 a ('sin c)) 2) d)
+    '(+ (** (* 3 a (sin c)) 2) d)
 
 Basic Calculus
 --------------
