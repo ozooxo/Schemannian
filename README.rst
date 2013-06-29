@@ -34,9 +34,10 @@ Basic Calculus
 
 "Schemannian" can do chain rule level derivations and kindergarten level integrals. However, as it currently only have extremely weak ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
 
-:: code:: scheme
+.. code:: scheme
 
     (require "calculus.rkt")
+
     (deriv '(** (+ 3 (* x 2) y) x) 'x)
     (integrate '(+ (** x 3) y 2) 'x)
 
@@ -48,10 +49,12 @@ Linear Algebra
 .. code:: scheme
 
     (require "linear-algebra.rkt")
+
     (dot-product-vector <vector> <vector>)
     (matrix-*-vector <matrix> <vector>)
     (transpose-mat <matrix>)
     (matrix-*-matrix <matrix> <matrix>)
+
     (mat-trace <matrix>)
     (mat-determinant <matrix>)
     (mat-inverse <matrix>)
@@ -73,6 +76,7 @@ Here is an example to calculate the Ricci scalar of the Schwarzschild metric:
 .. code:: scheme
 
     (require "riemannian.rkt")
+
     (define g (make-tensor '((_ a) (_ b)) 
                            '(((+ 1 (* -1 rs (** r -1))) 0 0 0)
                              (0 (* -1 (** (+ 1 (* -1 rs (** r -1))) -1)) 0 0)
