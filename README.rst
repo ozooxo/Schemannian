@@ -62,7 +62,11 @@ Linear Algebra
 Tensor Operations
 -----------------
 
-You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst-of-expressions>)``. ``<index-lst>`` can be any possible scheme list, form the most simplified case ``'(a b c)`` to the more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``.
+You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst-of-expressions>)``. ``<index-lst>`` can be any possible scheme list, form the most simplified case ``'(a b c)`` to the more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``. To use the above function, you need to
+
+.. code:: scheme
+
+    (require "tensor.rkt")
 
 Tensor operations includes: ``add``, which can add two scalars or two tensors with the same form; ``mul``, which can multiply two scalars, one scalar and one tensor (by means of scalar multiplication), and two tensors (by means of tensor product); and ``partial-deriv``, which results higher ranked tensors.
 
@@ -75,6 +79,7 @@ Here is an example to calculate the Ricci scalar of the Schwarzschild metric:
 
 .. code:: scheme
 
+    (require "tensor.rkt")
     (require "riemannian.rkt")
 
     (define g (make-tensor '((_ a) (_ b)) 
