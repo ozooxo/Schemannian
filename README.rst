@@ -25,7 +25,7 @@ Following the Lisp family rule, "Schemennian" uses prefix notations. Every value
 
 For example, :math:`(3 a \sin c)^2 + d` can be written as
 
-::
+.. code:: scheme
 
     '(+ (** (* 3 a ('sin c)) 2) d)
 
