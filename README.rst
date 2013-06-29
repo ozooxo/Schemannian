@@ -34,25 +34,24 @@ Basic Calculus
 
 "Schemannian" can do chain rule level derivations and kindergarten level integrals. However, as it currently only have extremely weak ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
 
-::
+:: code:: scheme
 
     (require "calculus.rkt")
-
     (deriv '(** (+ 3 (* x 2) y) x) 'x)
     (integrate '(+ (** x 3) y 2) 'x)
 
 Linear Algebra
 --------------
 
-"Schemannian" vectors are one-dimensional scheme list such as ``'(1 2 a 3 b)``, and matrices are two-dimensional list such as ``'((a 1) (2 b))``. Current supported functions includes
+"Schemannian" vectors are one-dimensional scheme list such as ``'(1 2 a 3 b)``, and matrices are two-dimensional list such as ``'((a 1) (2 b))``. Current supported functions include
 
 .. code:: scheme
 
+    (require "linear-algebra.rkt")
     (dot-product-vector <vector> <vector>)
     (matrix-*-vector <matrix> <vector>)
     (transpose-mat <matrix>)
     (matrix-*-matrix <matrix> <matrix>)
-
     (mat-trace <matrix>)
     (mat-determinant <matrix>)
     (mat-inverse <matrix>)
@@ -60,7 +59,7 @@ Linear Algebra
 Tensor Operations
 -----------------
 
-You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst>)``. ``<index-lst>`` can be any possible scheme list, form the most simplified case ``'(a b c)`` to the more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``.
+You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst-of-expressions>)``. ``<index-lst>`` can be any possible scheme list, form the most simplified case ``'(a b c)`` to the more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``.
 
 Tensor operations includes: ``add``, which can add two scalars or two tensors with the same form; ``mul``, which can multiply two scalars, one scalar and one tensor (by means of scalar multiplication), and two tensors (by means of tensor product); and ``partial-deriv``, which results higher ranked tensors.
 
@@ -73,6 +72,7 @@ Here is an example to calculate the Ricci scalar of the Schwarzschild metric:
 
 .. code:: scheme
 
+    (require "riemannian.rkt")
     (define g (make-tensor '((_ a) (_ b)) 
                            '(((+ 1 (* -1 rs (** r -1))) 0 0 0)
                              (0 (* -1 (** (+ 1 (* -1 rs (** r -1))) -1)) 0 0)
