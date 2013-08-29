@@ -83,8 +83,8 @@
   ;
   ;Notice that for "x_ab", "a" describes the other chain while "b" describes the inner chain.
   ;So it is (transpose x_ab) = '((_ _ _)
-  ;                              (_ _ _)
-  ;                              (_ _ _)) in Racket's list notation system.
+  ; (_ _ _)
+  ; (_ _ _)) in Racket's list notation system.
   (define (make-tensor index-lst contents-matrix)
     (cons index-lst (map-n (length index-lst) make-scalar contents-matrix)))
   (put 'make-tensor 'tensor (lambda (i m) (tag (make-tensor i m))))
@@ -110,7 +110,7 @@
                  (get-matrix tnsr))))
   (define (mul-tensor-to-tensor tnsr1 tnsr2)
     (cons (append (get-index tnsr1) (get-index tnsr2))
-          (map-n (length (get-index tnsr1)) 
+          (map-n (length (get-index tnsr1))
                  (lambda (t) (get-matrix (contents (mul t (tag tnsr2)))))
                  (get-matrix tnsr1))))
   (put 'add '(tensor tensor) (lambda (x y) (tag (add-tensor x y))))
@@ -119,7 +119,7 @@
   (put 'mul '(tensor tensor) (lambda (x y) (tag (mul-tensor-to-tensor x y))))
   
   (define (partial-deriv-tensor-over-scalar fx x)
-    (cons (get-index fx) 
+    (cons (get-index fx)
           (map-n (length (get-index fx))
                  (lambda (f) (partial-deriv f (make-scalar x)))
                  (get-matrix fx))))
@@ -130,7 +130,7 @@
                  (get-matrix x))))
   (define (partial-deriv-tensor-over-tensor fx x)
     (cons (append (get-index fx) (get-index x))
-          (map-n (length (get-index fx)) 
+          (map-n (length (get-index fx))
                  (lambda (f) (get-matrix (contents (partial-deriv f (tag x)))))
                  (get-matrix fx))))
   (put 'partial-deriv '(tensor scalar) (lambda (fx x) (tag (partial-deriv-tensor-over-scalar fx x))))
@@ -188,7 +188,7 @@
 ;(switch-index '(c a b) tss)
 ;(change-index '(c b a) tss)
 ;(switch-index '(c b a) tss) ;'(tensor (c b a) (((scalar . 1) (scalar . 5)) ((scalar . 3) (scalar . 7))) (((scalar . 2) (scalar . 6)) ((scalar . 4) (scalar . 8))))
-;(define xi  (make-tensor (list 'd) (list 'x 'y)))
+;(define xi (make-tensor (list 'd) (list 'x 'y)))
 ;(partial-deriv tss xi)
 
 ;(define tsss (make-tensor '(a a b) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))

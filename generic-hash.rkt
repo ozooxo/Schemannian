@@ -18,11 +18,11 @@
 
 (define (apply-generic op . args)
   (define (get-untag-procs op type-tags)
-    (map 
+    (map
      (lambda (i) (get op (append (list-take type-tags i) (cons 'expression (list-tail type-tags (+ i 1))))))
      ;If something do not have a tag, we tag it as 'expression.
      ;Currently, only one 'expression is allowed for a list of arguments.
-     (range (length type-tags)))) 
+     (range (length type-tags))))
   (let ([type-tags (map type-tag args)])
     (let ([proc (get op type-tags)])
       (if proc

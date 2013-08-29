@@ -63,6 +63,8 @@
 ;(index 5 (list 1 3 5 7)) ;2
 ;(index 0 (list 1 3 5 7)) ;#f
 
+;(index '(x y) '(w z (x y) 1 2)) ;2 ;It also works for complicated case.
+
 (define (index-in element nested-lst)
   (define (index-in-iter nested-lst passed-index)
     (cond ((null? nested-lst) false)
@@ -136,6 +138,8 @@
 
 ;(merge-same-op sum? '(1 2 (+ 3 4) (* 5 6))) ;'(1 2 3 4 (* 5 6))
 ;(make-sum '(a b (+ 1 c) 3 (* 2 b))) ;'(+ 4 a b c (* 2 b))
+
+;(make-sum '(2 3 (grassmannian . x) x (grassmannian . z) 4)) ;It also works with elements which has tags.
 
 (define (product? x) (and (pair? x) (eq? (get-op x) '*)))
 (define (make-product args)
