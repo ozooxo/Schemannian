@@ -6,6 +6,8 @@
   (cond ((number? datum) false)
         ((variable? datum) false)
         (else (eq? (type-tag datum) 'grassmannian))))
+(define (same-grassmannian? v1 v2)
+  (and (grassmannian? v1) (grassmannian? v2) (equal? v1 v2)))
 
 (define (install-grassmannian-package)
   (define (tag x) (attach-tag 'grassmannian x))
@@ -21,9 +23,9 @@
   (define (same?-iter args grassmannian-lst)
     (cond ((null? args) false)
           ((grassmannian? (car args))
-           (if (index (car args) grassmannian-lst) ;"index" in "fundamental.rkt" works using "equal?".
-               true
-               (same?-iter (cdr args) (cons (car args) grassmannian-lst))))
+           (if (eq? false (member (car args) grassmannian-lst)) ;"index" in "fundamental.rkt" works using "equal?".
+               (same?-iter (cdr args) (cons (car args) grassmannian-lst))
+               true))
           (else (same?-iter (cdr args) grassmannian-lst))))
   (same?-iter args '()))
 ;(has-same-grassmannians? (list 2 (make-grassmannian 'x) 3 'x (make-grassmannian 'z))) ;#f
@@ -42,4 +44,21 @@
 ;(simplify-grassmannian (list '* 2 (make-grassmannian 'x) 3 'x (make-grassmannian 'x))) ;0
 ;(simplify-grassmannian (list '* 0 (make-grassmannian 'x) 3 'x (make-grassmannian 'z))) ;0
 
-(define (grassmannian-integrate exp var-lst)
+(define (grassmannian-integrate exp var)
+  (cond ((same-grassmannian? exp var) 1)
+        ((sum? exp) 
+         (make-sum (map
+                    (lambda (arg-lst) (grassmannian-integrate arg-lst var)) 
+                    (get-arg-lst exp))))
+        ((product? exp)
+         (map-derivation (lambda (exp) (grassmannian-integrate exp var)) make-product (get-arg-lst exp)))
+        (else 0)))
+
+(define grassmannian-deriv grassmannian-integrate)
+
+;(define gx (make-grassmannian 'x))
+;(define gz (make-grassmannian 'z))
+;(grassmannian-integrate (list '+ 2 gx 3 'x gz) gx) ;1
+;(grassmannian-integrate (list '* 2 gx 3 'x gz) gx) ;'(* 6 x (grassmannian . z))
+;(grassmannian-integrate (list '* 2 3 'x gz) gx) ;0
+;(grassmannian-deriv (list '* 2 (list '+ gx gz) 3 'x gz) gx) ;'(* 6 x (grassmannian . z))

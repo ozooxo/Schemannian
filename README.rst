@@ -92,6 +92,28 @@ Here is an example to calculate the Ricci scalar of the Schwarzschild metric:
     (define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
     (ricci-scalar g R_ab)
 
+Grassmannian (Berezin) Calculus
+-------------------------------
+
+"Schemannian" can do some easy Grassmannian calculus. In the current design, Grassmannian numbers are made by ``make-grassmannian``; however, they add and multiple normal numbers by normal expressions (i.e., it doesn't cover the normal numbers by further tag system). For example, you do a general two-dimensional superfield by
+
+.. code:: scheme
+
+    (require "grassmannian-calculus.rkt")
+
+    (define theta1 (make-grassmannian 'theta1))
+    (define theta2 (make-grassmannian 'theta2))
+
+    (define superfield (list '+ 'a (list '* theta1 b1) (list '* theta2 b2) (list '* theta1 theta2 c)))
+
+Current supported functions include
+
+.. code:: scheme
+
+    (simplify-grassmannian (list '* 3 'x theta1 2 theta2 theta1)) ;It should give you zero
+    (grassmannian-integrate superfield theta1)
+    (grassmannian-deriv superfield theta1)
+
 Copyright and License
 =====================
 

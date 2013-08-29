@@ -53,9 +53,30 @@
 ;(list-remove 2 '(1 2 3 4)) ;'(1 3 4)
 ;(list-remove 5 '(1 2 3 4)) ;#f
 
+(define (members v-lst lst)
+  (define (members-iter v-lst lst)
+    (if (null? v-lst)
+        true
+        (if (member (car v-lst) lst)
+            (members-iter (cdr v-lst) lst)
+            false)))
+  (members-iter v-lst lst))
+
+;(members '(1 2 3) '(2 3 1 4 5)) ;#t
+;(members '(1 2 3) '(2 3 4 5 6)) ;#f
+
+(define (removes v-lst lst)
+  (define (removes-iter v-lst lst)
+    (if (null? v-lst)
+        lst
+        (removes-iter (cdr v-lst) (remove (car v-lst) lst))))
+  (removes-iter v-lst lst))
+
+;(removes '(1 3 5) '(3 4 5 1 2)) ;'(4 2)
+
 (define (index element lst) ;The first element has index 0
   (define (index-iter element lst passed-index)
-    (cond ((null? lst) false);(error "Not find in list -- INDEX" element lst))
+    (cond ((null? lst) false) ;(error "Not find in list -- INDEX" element lst))
           ((equal? (car lst) element) passed-index)
           (else (index-iter element (cdr lst) (+ passed-index 1)))))
   (index-iter element lst 0))
