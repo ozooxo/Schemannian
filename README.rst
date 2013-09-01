@@ -104,7 +104,10 @@ Grassmannian (Berezin) Calculus
     (define theta1 (make-grassmannian 'theta1))
     (define theta2 (make-grassmannian 'theta2))
 
-    (define superfield (list '+ 'a (list '* theta1 b1) (list '* theta2 b2) (list '* theta1 theta2 c)))
+    (define superfield (list '+ 'a 
+                                (list '* theta1 'b1)
+                                (list '* theta2 'b2)
+                                (list '* theta1 theta2 'c)))
 
 Current supported functions include
 
@@ -113,6 +116,39 @@ Current supported functions include
     (simplify-grassmannian (list '* 3 'x theta1 2 theta2 theta1)) ;It should give you zero
     (grassmannian-integrate superfield theta1)
     (grassmannian-deriv superfield theta1)
+
+Plotting
+--------
+
+"Schemannian" supports some functions for plotting and data visualization. To use the supported ``plot`` and ``listplot``, you want to import the relevant files.
+
+.. code:: scheme
+
+    (require "plot.rkt")
+
+The properties of the functions are
+
+.. code:: scheme
+
+    (plot func x-min x-max y-min y-max) → pict?
+        func : procedure?
+        x-min : real?
+        x-max : real?
+        y-min : real?
+        y-max : real?
+
+and 
+
+.. code:: scheme
+
+    (listplot lst x-min x-max y-min y-max) → pict?
+        lst : list? 
+        x-min : real?
+        x-max : real?
+        y-min : real?
+        y-max : real?
+
+For ``listplot``, every element in ``lst`` is a list of two numbers, as the x and y coordinate of the plotting point.
 
 Copyright and License
 =====================
