@@ -17,6 +17,22 @@
 
 ;;;
 
+;If there's only one argument
+(define (function-chain f g) (lambda (x) (f (g x))))
+;((function-chain sin cos) 1) ;0.5143952585235492
+
+(define (and-lst lsts)
+  (define (and-lst-recur lsts)
+    (cond ((null? lsts) true)
+          ((eq? (car lsts) true) (and-lst-recur (cdr lsts)))
+          ((eq? (car lsts) false) false)))
+  (and-lst-recur lsts))
+
+;(and-lst (list true true))
+;(and-lst (list true false))
+
+;;;
+
 ;It is not the same as the Racket "reverse", as it has two arguments.
 (define (list-reverse torev-seq done-seq)
   (if (eq? torev-seq '())
@@ -51,7 +67,13 @@
   (list-flip '() lst))
 
 ;(list-remove 2 '(1 2 3 4)) ;'(1 3 4)
+;(list-remove 2 '(1 2 3 2 4)) ;'(1 3 2 4)
 ;(list-remove 5 '(1 2 3 4)) ;#f
+
+(define (list-intersect lsts)
+  (set->list (apply set-intersect (map list->set lsts))))
+;(list-intersect '((x y 1) (y 2 x) (x 2 3))) ;'(x)
+;(list-intersect '((x y 1 x) (y 2 x x) (x 2 3 x))) ;'(x) ;It currently doesn't count duplicate element.
 
 (define (members v-lst lst)
   (define (members-iter v-lst lst)
@@ -73,6 +95,7 @@
   (removes-iter v-lst lst))
 
 ;(removes '(1 3 5) '(3 4 5 1 2)) ;'(4 2)
+;(removes '(1 3 5) '(3 4 5 1 2 1)) ;'(4 2 1)
 
 (define (index element lst) ;The first element has index 0
   (define (index-iter element lst passed-index)
