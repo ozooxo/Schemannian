@@ -6,8 +6,11 @@
 
 (define (deriv exp var)
   (cond ((number? exp) 0)
-        ((variable? exp)
-         (if (same-variable? exp var) 1 0))
+        ((equal? exp var) 1)
+        ((and (variable? exp) (not (same-variable? exp var))) 0)
+        ((function? exp) (if (eq? (get-function-arg exp) var)
+                             (make-deriv exp var)
+                             0))
         ((sum? exp)
          (make-sum (map
                     (lambda (arg-lst) (deriv arg-lst var)) 
@@ -48,6 +51,11 @@
 ;(deriv '(sin (* 3 x)) 'x) ;'(* 3 (cos (* 3 x)))
 
 ;(deriv '(+ x y) '+) ;0 ;It shows a bug that '+ '* are also symbols. The bug is not corrected.
+
+;(define xt (make-function 'x 't))
+;(deriv (list '* xt 3) xt) ;3
+;(deriv (list '* xt 3) 't) ;'(* 3 (deriv (function x t) t))
+;(deriv (list '* xt 3) 's) ;0
 
 (define (integrate exp var)
   (cond ((number? exp) (make-product (list exp var)))

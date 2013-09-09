@@ -139,6 +139,16 @@
 
 ;;;
 
+;A function can have only one argument. It is fine for equation of motion
+;(which has only a "t"), but not enough for other proposes.
+(define (make-function f x) (list 'function f x))
+(define (function? exp) (and (pair? exp) (eq? (get-op exp) 'function)))
+(define (get-function-arg exp) (caddr exp))
+
+(define (make-deriv exp var) (list 'deriv exp var))
+
+;;;
+
 (define (merge-same-op is-op? args)
   (define (merge-same-op-recur args)
     (cond ((null? args) '())
