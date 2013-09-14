@@ -2,7 +2,7 @@
 
 (require "fundamental.rkt")
 
-(provide deriv)
+(provide deriv integrate)
 
 (define (deriv exp var)
   (cond ((number? exp) 0)

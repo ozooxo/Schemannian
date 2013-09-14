@@ -18,8 +18,12 @@
 ;;;
 
 ;If there's only one argument
-(define (function-chain f g) (lambda (x) (f (g x))))
-;((function-chain sin cos) 1) ;0.5143952585235492
+;(define (function-chain f g) (lambda (x) (f (g x))))
+(define (function-chain f-lst)
+  (if (null? (cdr f-lst))
+      (lambda (x) ((car f-lst) x))
+      (lambda (x) ((car f-lst) ((function-chain (cdr f-lst)) x)))))
+;((function-chain (list sin cos)) 1) ;0.5143952585235492
 
 (define (and-lst lsts)
   (define (and-lst-recur lsts)
@@ -119,6 +123,19 @@
 ;(index-in 'c '((a b) (c d) (e f))) ;1
 ;(index-in 'g '((a b) (c d) (e f))) ;#f
 
+(define (counter lst)
+  (define counter-hash (make-hash))
+  (define (put-to-hash ele)
+    (if (hash-has-key? counter-hash ele)
+        (hash-set! counter-hash ele (+ (hash-ref counter-hash ele) 1))
+        (hash-set! counter-hash ele 1)))
+  (begin
+    (map put-to-hash lst)
+    counter-hash))
+
+;(counter '(a a b a c a d d b e)) ;'#hash((a . 4) (d . 2) (c . 1) (e . 1) (b . 2))
+;(counter '((+ a b) (+ c d) (+ 1 2) (+ a b) c)) ;'#hash(((+ c d) . 1) ((+ 1 2) . 1) (c . 1) ((+ a b) . 2))
+
 ;(define (map-n dim prop lst)
 ;  (if (= dim 1)
 ;      (map prop lst)
@@ -213,12 +230,20 @@
   (cond ((=number? n 0) 1)
         ((=number? n 1) x)
         ((and (number? x) (number? n)) (expt x n))
+        ((product? x) (make-product (map (lambda (base) (make-exponentiation base n)) (get-arg-lst x))))
         (else (list '** x n))))
+
+;(make-exponentiation '(* x y z) 'n) ;'(* (** x n) (** y n) (** z n))
 
 (define (make-abs x) (if (number? x) (abs x) (list 'abs x)))
 (define (make-log x) (if (number? x) (log x) (list 'log x)))
 (define (make-sin x) (if (number? x) (sin x) (list 'sin x)))
 (define (make-cos x) (if (number? x) (cos x) (list 'cos x)))
+
+(define (abs? x) (and (pair? x) (eq? (car x) 'abs)))
+(define (log? x) (and (pair? x) (eq? (car x) 'log)))
+(define (sin? x) (and (pair? x) (eq? (car x) 'sin)))
+(define (cos? x) (and (pair? x) (eq? (car x) 'cos)))
 
 ;(make-abs -3) ;3
 ;(make-abs '(+ a b)) ;'(abs (+ a b))

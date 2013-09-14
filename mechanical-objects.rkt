@@ -25,3 +25,4 @@
 (define pendulum2 (make-pendulum 'm2 'l2 'pivotX2 'pivotY2 (make-function 'theta2 't))) 
 (pendulum1 'X)
 (pendulum2 'X)
+(pendulum2 'kinetic-energy)
