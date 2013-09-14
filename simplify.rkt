@@ -77,7 +77,8 @@
 ;(combine-sin2-cos2 '(+ x y 1 (* a (** (cos (+ z x)) 2)) (* (** (sin (+ z w)) 2) a))) ;same as before
 
 (define (simplify exp)
-  (cond ((sum? exp) ((function-chain (list combine-consts combine-sin2-cos2 distributivity))
+  (cond ((eqn? exp) (make-eqn (simplify (eqn-LHS exp)) (simplify (eqn-RHS exp))))
+        ((sum? exp) ((function-chain (list combine-consts combine-sin2-cos2 distributivity))
                      (make-sum (map simplify (get-arg-lst exp)))))
         ((product? exp) (make-product (map simplify (get-arg-lst exp))))
         (else exp)))
@@ -87,15 +88,4 @@
 ;(simplify '(+ (* 3 a b) (* 5 a b) (* b 6 c) f 7)) ;'(+ 7 (* 6 b c) f (* 8 a b))
 ;(simplify '(+ x y 1 (* a (** (cos (+ z w)) 2)) (* (** (sin (+ z w)) 2) a))) ;'(+ 1 y x a)
 ;(simplify '(+ x y 1 (* 5 a) (* 6 a (** (cos (* z w)) 2)) (* 6 (** (sin (* z w)) 2) a))) ;'(+ 1 y x (* 11 a))
-
-;(distributivity '(+
-;   (* (** l2 2) (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2))
-;   (* (** l2 2) (** ((sin (function theta2 t)) (deriv (function theta2 t) t)) 2))))
-
-;(simplify '(+
-;   (* (** l2 2) (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2))
-;   (* (** l2 2) (** ((sin (function theta2 t)) (deriv (function theta2 t) t)) 2))))
-
-;'(*
-;  (+ (* (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2)) (** ((sin (function theta2 t)) (deriv (function theta2 t) t)) 2))
-;  (** l2 2))
+;(simplify '(= (+ 2 3 x y) (* 3 z w 5))) ;'(= (+ 5 y x) (* 15 z w))

@@ -38,14 +38,13 @@
                                                     (make-product (list (base exp)
                                                                         (deriv (exponent exp) var)
                                                                         (make-log (base exp)))))))))))
-        ((eq? (get-op exp) 'log)
+        ((log? exp)
          (make-product (list (make-exponentiation (get-arg exp) -1) (deriv (get-arg exp) var))))
-        ((eq? (get-op exp) 'sin)
+        ((sin? exp)
          (make-product (list (make-cos (get-arg exp)) (deriv (get-arg exp) var))))
-        ((eq? (get-op exp) 'cos)
+        ((cos? exp)
          (make-product (list -1 (make-sin (get-arg exp)) (deriv (get-arg exp) var))))
-        (else
-         (error "unknown expression type -- DERIV" exp))))
+        (else (error "unknown expression type -- DERIV" exp))))
 
 ;(deriv '(+ x 2 x x 3) 'x) ;3
 ;(deriv '(+ (* x 2) (* x x y 3)) 'x) ;'(+ 2 (+ (* 3 x y) (* 3 x y)))
@@ -77,8 +76,7 @@
              (make-product (list (/ 1 (+ (exponent exp) 1))
                                  (make-exponentiation var (+ (exponent exp) 1))))
              (error "unknown expression type -- DERIV" exp)))
-        (else
-         (error "unknown expression type -- DERIV" exp))))
+        (else (error "unknown expression type -- DERIV" exp))))
 
 ;(integrate '(+ x y 2) 'x) ;'(+ (* (1/2) (** x 2)) (* y x) (* 2 x))
 ;(integrate '(** x 3) 'x) ;'(* (1/4) (** x 4))

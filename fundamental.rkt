@@ -225,7 +225,7 @@
 ;(make-product '(1 a (* 2 f e) b 4 c (+ 4 d))) ;'(* 8 a f e b c (+ 4 d))
 ;(make-product (list '(+ a b c))) ;'(+ a b c)
 
-(define (exponentiation? x) (and (pair? x) (eq? (car x) '**)))
+(define (exponentiation? x) (and (pair? x) (eq? (get-op x) '**)))
 (define (base p) (cadr p))
 (define (exponent p) (caddr p))
 (define (make-exponentiation x n)
@@ -242,10 +242,10 @@
 (define (make-sin x) (if (number? x) (sin x) (list 'sin x)))
 (define (make-cos x) (if (number? x) (cos x) (list 'cos x)))
 
-(define (abs? x) (and (pair? x) (eq? (car x) 'abs)))
-(define (log? x) (and (pair? x) (eq? (car x) 'log)))
-(define (sin? x) (and (pair? x) (eq? (car x) 'sin)))
-(define (cos? x) (and (pair? x) (eq? (car x) 'cos)))
+(define (abs? x) (and (pair? x) (eq? (get-op x) 'abs)))
+(define (log? x) (and (pair? x) (eq? (get-op x) 'log)))
+(define (sin? x) (and (pair? x) (eq? (get-op x) 'sin)))
+(define (cos? x) (and (pair? x) (eq? (get-op x) 'cos)))
 
 ;(make-abs -3) ;3
 ;(make-abs '(+ a b)) ;'(abs (+ a b))
@@ -257,6 +257,11 @@
 
 ;The simplification of elementary arithmetic is really hard to write ...
 ;Need to think carefully for a more organized way to do that ...
+
+(define (make-eqn LHS RHS) (list '= LHS RHS))
+(define (eqn? exp) (and (pair? exp) (eq? (get-op exp) '=)))
+(define (eqn-LHS exp) (cadr exp))
+(define (eqn-RHS exp) (caddr exp))
 
 ;;;
 
