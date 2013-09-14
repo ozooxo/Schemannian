@@ -153,6 +153,13 @@
 ;(map-n 2 fx (list (list 1 2) (list 3 4))) ;'((3 4) (5 6))
 ;(map-n 2 + (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8))) ;'((6 8) (10 12))
 
+(define (exp-replace exp to-replace-lst replace-lst)
+  (cond ((member exp to-replace-lst) (list-ref replace-lst (index exp to-replace-lst)))
+        ((or (number? exp) (variable? exp)) exp)
+        (else (map (lambda (x) (exp-replace x to-replace-lst replace-lst)) exp))))
+
+;(exp-replace '(+ 2 (* x y) (* y (+ z (* x y))) z (* x y)) '((* x y)) '(w)) ;'(+ 2 w (* y (+ z w)) z w)
+
 (define (accumulate op initial sequence)
   (if (null? sequence)
       initial
@@ -183,6 +190,7 @@
 ;(which has only a "t"), but not enough for other proposes.
 (define (make-function f x) (list 'function f x))
 (define (function? exp) (and (pair? exp) (eq? (get-op exp) 'function)))
+(define (get-function-kernal exp) (cadr exp))
 (define (get-function-arg exp) (caddr exp))
 
 (define (make-deriv exp var) (list 'deriv exp var))

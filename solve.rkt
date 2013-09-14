@@ -8,6 +8,7 @@
   (cond ((number? exp) 0)
         ((equal? exp var) 1)
         ((and (variable? exp) (not (same-variable? exp var))) 0)
+        ((function? exp) 0)
         ((or (eqn? exp) (sum? exp) (product? exp) (exponentiation? exp))
          (apply + (map (lambda (x) (solve-count x var)) (get-arg-lst exp))))
         ((or (log? exp) (sin? exp) (cos? exp))
@@ -16,6 +17,8 @@
 
 ;(solve-count '(= (* 3 y) x) 'y) ;1
 ;(solve-count '(= (* 3 (sin y)) (+ x y)) 'y) ;2
+
+;(solve-count '(deriv (deriv (function theta1 t) t) t)  '(deriv (deriv (function theta1 t) t) t))
 
 (define (switch-LHS-RHS eqn var)
   (if (= (solve-count (eqn-LHS eqn) var) 1)
@@ -36,7 +39,7 @@
 (define (solve eqn var)
   (cond ((and (eqn? eqn) (= (solve-count eqn var) 1))
          (let ([eqnn (switch-LHS-RHS eqn var)])
-           (cond ((equal? (eqn-LHS eqnn) var) (eqn-RHS eqnn))
+           (cond ((equal? (eqn-LHS eqnn) var) eqnn)
                  ((sum? (eqn-LHS eqnn)) 
                   (solve (make-eqn (exp-with-var (get-arg-lst (eqn-LHS eqnn)) var)
                                    (make-sum (cons (eqn-RHS eqnn) (map (lambda (x) (make-product (list -1 x))) (exp-lst-without-var (get-arg-lst (eqn-LHS eqnn)) var)))))
@@ -58,10 +61,10 @@
 
 ;(solve '(* 3 y) 'y) ;Not a equation (* 3 y)
 ;(solve '(= y (* 3 y)) 'y) ;Var appears in eqn not exactly once, don't know how to solve right now (= y (* 3 y))
-;(solve '(= y x) 'y) ;'x
-;(solve '(= x y) 'y) ;'x
-;(solve '(= (+ y z) x) 'y) ;'(+ x (* -1 z))
-;(solve '(= x (* z y)) 'y) ;'(* x (** z -1))
-;(solve '(= (** x z) y) 'x) ;'(** y (** z -1))
-;(solve '(= (** x z) y) 'z) ;'(* (log y) (** (log x) -1))
-;(solve '(= x (log y)) 'y) ;'(** 2.718281828459045 x)
+;(solve '(= y x) 'y) ;'(= y x)
+;(solve '(= x y) 'y) ;'(= y x)
+;(solve '(= (+ y z) x) 'y) ;'(= y (+ x (* -1 z)))
+;(solve '(= x (* z y)) 'y) ;'(= y (* x (** z -1)))
+;(solve '(= (** x z) y) 'x) ;'(= x (** y (** z -1)))
+;(solve '(= (** x z) y) 'z) ;'(= z (* (log y) (** (log x) -1)))
+;(solve '(= x (log y)) 'y) ;'(= y (** 2.718281828459045 x))

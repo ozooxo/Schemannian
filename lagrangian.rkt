@@ -1,15 +1,15 @@
 #lang racket
 
-(require "fundamental.rkt" "calculus.rkt" "mechanical-objects.rkt")
+(require "fundamental.rkt" "calculus.rkt" "mechanical-objects.rkt" "solve.rkt")
 
 (define (lagrangian object-lst)
   (make-sum (append (map (lambda (f) (f 'kinetic-energy)) object-lst)
                     (map (lambda (f) (make-product (list -1 (f 'potential-energy)))) object-lst))))
 
 (define (euler-lagrangian-equation L coordi-lst coordi-dot-lst time)
-  (make-eqn (map (lambda (coordi coordi-dot) (make-sum (list (deriv (deriv L coordi-dot) time)
-                                                            (make-product (list -1 (deriv L coordi)))))) coordi-lst coordi-dot-lst)
-           0))
+   (map (lambda (coordi coordi-dot) (make-eqn (make-sum (list (deriv (deriv L coordi-dot) time)
+                                                              (make-product (list -1 (deriv L coordi)))))
+                                              0)) coordi-lst coordi-dot-lst))
 
 ;;;
 
@@ -20,7 +20,9 @@
 ;(lagrangian (list pendulum1 pendulum2)) ;complicated
 
 (define L1 (lagrangian (list pendulum1)))
-(euler-lagrangian-equation L1 (list (make-function 'theta1 't)) (list (deriv (make-function 'theta1 't) 't)) 't) ;correct
+(define euler-lagrangian-L1 (euler-lagrangian-equation L1 (list (make-function 'theta1 't)) (list (deriv (make-function 'theta1 't) 't)) 't))
+;euler-lagrangian-L1 ;correct
+;(solve (car euler-lagrangian-L1) '(deriv (deriv (function theta1 t) t) t)) ;'(= ... (* -9.8 m1 l1 (sin (function theta1 t)) (** m1 -1) (** (** l1 2) -1)))
 
 (define L (lagrangian (list pendulum1 pendulum2)))
 ;(euler-lagrangian-equation L
