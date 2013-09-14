@@ -25,14 +25,17 @@
   (define (put-in exp)
     (if (product? exp)
         (let ([prod-exp (make-product (get-arg-lst exp))])
+          ;(print prod-exp)
           (cond ((symbol? prod-exp) (put-to-hash (list prod-exp) 1))
                 ((number? (car (get-arg-lst prod-exp)))
                  (put-to-hash (cdr (get-arg-lst prod-exp)) (car (get-arg-lst prod-exp))))
-                (put-to-hash (list prod-exp) 1)))
+                (else (put-to-hash (list prod-exp) 1))))
         (put-to-hash (list exp) 1)))
   (if (sum? exp)
       (begin
+        ;(println (get-arg-lst exp))
         (map put-in (get-arg-lst exp))
+        ;(println counter-hash)
         (make-sum (map (lambda (x) (make-product (cons (cdr x) (car x)))) (hash->list counter-hash))))
       exp))
 
@@ -83,3 +86,15 @@
 ;(simplify '(* w (+ (* x y z) (* z y w) (* z y)))) ;'(* w (+ 1 x w) y z)
 ;(simplify '(+ (* 3 a b) (* 5 a b) (* b 6 c) f 7)) ;'(+ 7 (* 6 b c) f (* 8 a b))
 ;(simplify '(+ x y 1 (* a (** (cos (+ z w)) 2)) (* (** (sin (+ z w)) 2) a))) ;'(+ 1 y x a)
+
+;(distributivity '(+
+;   (* (** l2 2) (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2))
+;   (* (** l2 2) (** ((sin (function theta2 t)) (deriv (function theta2 t) t)) 2))))
+
+;(simplify '(+
+;   (* (** l2 2) (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2))
+;   (* (** l2 2) (** ((sin (function theta2 t)) (deriv (function theta2 t) t)) 2))))
+
+;'(*
+;  (+ (* (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2)) (** ((sin (function theta2 t)) (deriv (function theta2 t) t)) 2))
+;  (** l2 2))

@@ -38,7 +38,7 @@
         ((eq? (get-op exp) 'sin)
          (make-product (list (make-cos (get-arg exp)) (deriv (get-arg exp) var))))
         ((eq? (get-op exp) 'cos)
-         (make-product (list -1 (list (make-sin (get-arg exp)) (deriv (get-arg exp) var)))))
+         (make-product (list -1 (make-sin (get-arg exp)) (deriv (get-arg exp) var))))
         (else
          (error "unknown expression type -- DERIV" exp))))
 
