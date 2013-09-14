@@ -2,7 +2,7 @@
 Schemannian
 ===========
 
-As a scheme/Racket based package for symbolic mathematics for physicist, "Schemannian" currently supports basic calculus and linear algebra, Riemannian geometry and General Relativity calculations.
+As a scheme/Racket based package for symbolic mathematics for physicist, "Schemannian" currently supports a realization of Euler-Lagrangian Equation is classical physics, Riemannian geometry and General Relativity calculations, and simple Grassmannian (Berezin) Calculus.
 
 Installation
 ============
@@ -29,10 +29,25 @@ For example, :math:`(3 a \sin c)^2 + d` can be written as
 
     '(+ (** (* 3 a (sin c)) 2) d)
 
+Simplification of Expressions
+-----------------------------
+
+"Schemannian" currently have some basic capability of simplifying expressions, such as combining like terms by distributive property of multiplication, using Pythagorean trigonometric identity to simplify ``(+ (** (sin x) 2) (** (cos x) 2))`` to ``1``, etc.
+
+To use the function ``simplify``, we do
+
+.. code:: scheme
+
+    (require "simplify.rkt")
+
+    (simplify '(+ x y 1 (* 5 a) (* 6 a (** (cos (* z w)) 2)) (* 6 (** (sin (* z w)) 2) a)))
+
+and it will give you ``'(+ 1 y x (* 11 a))``.
+
 Basic Calculus
 --------------
 
-"Schemannian" can do chain rule level derivations and kindergarten level integrals. However, as it currently only have extremely weak ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
+"Schemannian" can do chain rule level derivations and kindergarten level integrals. However, as it currently only have limited ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
 
 .. code:: scheme
 
@@ -58,6 +73,11 @@ Linear Algebra
     (mat-trace <matrix>)
     (mat-determinant <matrix>)
     (mat-inverse <matrix>)
+
+Euler-Lagrangian Equation
+-------------------------
+
+To calculate the equation of motion from the Lagrangian of a classical mechanical system, we first need to define the the closure of mechanical objects with dispatching ``kinetic-energy`` and ``potential-energy``. For example, in ``mechanical-objects.rkt`` we defined ``make-pendulum`` which works for both simple pendulum and double (or multiple) pendulum. Then, the functions ``lagrangian`` and ``euler-lagrangian-equation`` in ``lagrangian.rkt`` can give you the Lagrangian and the set of equations of motion of your defined mechanical system.
 
 Tensor Operations
 -----------------

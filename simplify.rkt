@@ -86,6 +86,7 @@
 ;(simplify '(* w (+ (* x y z) (* z y w) (* z y)))) ;'(* w (+ 1 x w) y z)
 ;(simplify '(+ (* 3 a b) (* 5 a b) (* b 6 c) f 7)) ;'(+ 7 (* 6 b c) f (* 8 a b))
 ;(simplify '(+ x y 1 (* a (** (cos (+ z w)) 2)) (* (** (sin (+ z w)) 2) a))) ;'(+ 1 y x a)
+;(simplify '(+ x y 1 (* 5 a) (* 6 a (** (cos (* z w)) 2)) (* 6 (** (sin (* z w)) 2) a))) ;'(+ 1 y x (* 11 a))
 
 ;(distributivity '(+
 ;   (* (** l2 2) (** (cos (function theta2 t)) 2) (** (deriv (function theta2 t) t) 2))

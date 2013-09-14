@@ -186,6 +186,8 @@
 (define (get-function-arg exp) (caddr exp))
 
 (define (make-deriv exp var) (list 'deriv exp var))
+(define (deriv? exp) (and (pair? exp) (eq? (get-op exp) 'deriv)))
+(define (get-deriv-arg exp) (caddr exp))
 
 ;;;
 
