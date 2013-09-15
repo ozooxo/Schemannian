@@ -1,6 +1,7 @@
 #lang racket
 
-(require "fundamental.rkt")
+(require "fundamental.rkt"
+         "simplify.rkt")
 
 (provide (all-defined-out))
 
@@ -22,7 +23,7 @@
 ;;;
 
 (define (dot-product-vector v w)
-  (accumulate (lambda args (make-sum args)) 0 (map (lambda args (make-product args)) v w)))
+  (accumulate (lambda args (make-sum args)) 0 (map (lambda args (simplify (make-product args))) v w)))
 
 (define (matrix-*-vector m v)
   (define (dot-v w) (dot-product-vector v w))
@@ -42,17 +43,18 @@
 ;(dot-product-vector v w) ;'(+ 35 (* a d))
 ;(matrix-*-vector m v) ;'((+ (* a b) (* 5 c)) (+ 15 (* a e)))
 ;(transpose-mat m) ;'((b e) (c 3))
-;(matrix-*-matrix m m) ;'(((+ (* b b) (* c c)) (+ (* b e) (* 3 c))) ((+ (* e b) (* 3 c)) (+ 9 (* e e))))
+;(matrix-*-matrix m m) ;'(((+ (** b 2) (** c 2)) (+ (* e b) (* 3 c))) ((+ (* e b) (* 3 c)) (+ 9 (** e 2))))
 
 (define (mat-trace m)
   (define (diagonal-lst m)
     (if (null? m)
         '()
         (cons (car (car m)) (diagonal-lst (map cdr (cdr m))))))
-  (make-sum (diagonal-lst m)))
+  (simplify (make-sum (diagonal-lst m))))
 
 ;(mat-trace '((1 2 3) (4 5 6) (7 8 9))) ;15
 ;(mat-trace '((a b c) (d e f) (g h i))) ;'(+ a e i)
+;(mat-trace '((1 b c) (d e f) (g h 3))) ;'(+ 4 e)
 
 (define (mat-delete-column m pos) (list-delete m pos))
 (define (mat-delete-row m pos) (map (lambda (lst) (list-delete lst pos)) m))
@@ -63,23 +65,23 @@
         '()
         (begin
          (cons 
-          (make-product (list (sign num) (mat-determinant (map cdr (mat-delete-column m num))) (car (car columns))))
+          (simplify (make-product (list (sign num) (mat-determinant (map cdr (mat-delete-column m num))) (car (car columns)))))
           (pointer (+ num 1) (cdr columns))))))
   (cond ((not (= (length m) (length (car m)))) (error "Not a squared matrix"))
         ((null? (cdr m)) (car (car m)))
-        (else (make-sum (pointer 0 m)))))
+        (else (simplify (make-sum (pointer 0 m))))))
 
 (define (mat-factor m i j) (list-ref (list-ref m i) j))
-(define (mat-cofactor m i j) (make-product
-                              (list
-                               (sign (+ i j))
-                               (mat-determinant (mat-delete-column (mat-delete-row m j) i)))))
+(define (mat-cofactor m i j) (simplify (make-product
+                                        (list
+                                         (sign (+ i j))
+                                         (mat-determinant (mat-delete-column (mat-delete-row m j) i))))))
 
 (define (mat-inverse m)
   (let ([det (mat-determinant m)]
         [len (length m)])
-    (map (lambda (row) (map (lambda (column) (make-product (list (mat-cofactor m column row)
-                                                                 (make-exponentiation det -1))))
+    (map (lambda (row) (map (lambda (column) (simplify (make-product (list (mat-cofactor m column row)
+                                                                           (make-exponentiation det -1)))))
                             (range len))) 
          (range len))))
 

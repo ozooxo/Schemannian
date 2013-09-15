@@ -1,7 +1,9 @@
 #lang racket
 
-(require "generic-hash.rkt" "fundamental.rkt")
-(require "calculus.rkt")
+(require "generic-hash.rkt"
+         "fundamental.rkt"
+         "simplify.rkt"
+         "calculus.rkt")
 (require (only-in "linear-algebra.rkt" transpose-mat))
 
 (provide (all-defined-out))
@@ -10,6 +12,7 @@
 
 (define (add x y) (apply-generic 'add x y))
 (define (mul x y) (apply-generic 'mul x y))
+(define (simplify-generic x) (apply-generic 'simplify-generic x))
 (define (partial-deriv fx x) (apply-generic 'partial-deriv fx x))
 
 ;;;
@@ -19,12 +22,14 @@
 
 (define (install-scalar-package)
   (define (tag x) (attach-tag 'scalar x))
-  (define (add x y) (make-sum (list x y)))
-  (define (mul x y) (make-product (list x y)))
+  (define (add x y) (simplify (make-sum (list x y))))
+  (define (mul x y) (simplify (make-product (list x y))))
+  (define (simplify-generic x) (simplify x))
   (define (partial-deriv fx x) (deriv fx x))
   (put 'make-scalar 'scalar tag)
   (put 'add '(scalar scalar) (lambda (x y) (tag (add x y))))
   (put 'mul '(scalar scalar) (lambda (x y) (tag (mul x y))))
+  (put 'simplify-generic '(scalar) (lambda (x) (tag (simplify-generic x))))
   (put 'partial-deriv '(scalar scalar) (lambda (fx x) (tag (partial-deriv fx x)))))
 
 (install-scalar-package)
@@ -38,6 +43,9 @@
 ;(define gx (make-scalar '(* x y z)))
 ;(partial-deriv fx x) ;'(scalar . 0)
 ;(partial-deriv gx x) ;'(scalar * y z)
+
+;(define t (make-scalar '(+ 3 6 (+ x 5 x))))
+;(simplify-generic t) ;'(scalar + 14 (* 2 x))
 
 (define (install-tensor-package)
   (define (switch-index-withmat level lst)
@@ -118,6 +126,9 @@
   (put 'mul '(scalar tensor) (lambda (x y) (tag (mul-tensor-to-scalar y x)))) ;We assume commutativity of scalars in here.
   (put 'mul '(tensor tensor) (lambda (x y) (tag (mul-tensor-to-tensor x y))))
   
+  (define (simplify-generic-tensor x) (cons (get-index x) (map-n (length (get-index x)) simplify-generic (get-matrix x))))
+  (put 'simplify-generic '(tensor) (lambda (x) (tag (simplify-generic-tensor x))))
+  
   (define (partial-deriv-tensor-over-scalar fx x)
     (cons (get-index fx)
           (map-n (length (get-index fx))
@@ -173,6 +184,7 @@
 (define (scalar-mul k x) (mul (make-scalar k) x))
 
 ;(define ts (make-tensor (list 'a 'b) (list (list '(+ c d) 2) (list 3 4))))
+;ts
 ;(get-matrix-without-tag ts) ;'(((+ c d) 2) (3 4))
 ;(add ts ts) ;'(tensor (a b) ((scalar + (+ c d) (+ c d)) (scalar . 4)) ((scalar . 6) (scalar . 8)))
 ;(define ts (make-tensor (list 'a 'b) (list (list 1 2) (list 3 4))))
@@ -195,7 +207,8 @@
 ;(switch-index '(b a a) tsss)
 
 ;(define x (make-scalar 'x))
-;(define ts (make-tensor (list 'a) (list '(+ x y z) '(* 2 w x))))
+;(define ts (make-tensor (list 'a) (list '(+ x y z (* -1 x) x) '(* 2 w x))))
+;(simplify-generic ts) ;'(tensor (a) (scalar + y x z) (scalar * 2 w x))
 ;(mul ts x) ;'(tensor (a) (scalar * (+ x y z) x) (scalar * (* 2 w x) x))
 ;(mul x ts) ;'(tensor (a) (scalar * (+ x y z) x) (scalar * (* 2 w x) x))
 ;(scalar-mul 'x ts)

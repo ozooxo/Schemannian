@@ -1,8 +1,9 @@
 #lang racket
 
 (require (only-in "fundamental.rkt" list-take list-reverse map-n))
-(require "tensor.rkt")
-(require "linear-algebra.rkt")
+(require "simplify.rkt"
+         "tensor.rkt"
+         "linear-algebra.rkt")
 
 (provide (all-defined-out))
 
@@ -52,12 +53,12 @@
        (map-n len mat-trace (get-matrix-without-tag tnsr)))))
   (if (= (length (get-index tnsr)) 2)
       (if (eq? (cadr (car (get-index tnsr))) (cadr (cadr (get-index tnsr))))
-          (make-scalar (mat-trace (get-matrix-without-tag tnsr)))
-          tnsr)
+          (make-scalar (simplify (mat-trace (get-matrix-without-tag tnsr))))
+          (simplify-generic tnsr))
       (let ([new-index (list-same-right (get-index tnsr))])
         (if new-index
-            (einstein-summation (tensor-trace (switch-index new-index tnsr)))
-            tnsr))))
+            (simplify-generic (einstein-summation (tensor-trace (switch-index new-index tnsr))))
+            (simplify-generic tnsr)))))
 
 ;(define t (make-tensor '((^ a) (_ a)) '((a b) (c d))))
 ;(einstein-summation t) ;'(scalar + a d)
@@ -82,14 +83,17 @@
                             (list (cadr upper-lower-lst) (cadr (cadr (get-index tnsr)))))
                       (mat-inverse (get-matrix-without-tag tnsr))))))
 
-;(define g (make-tensor '((_ a) (_ b)) '((1 -3 1) (-3 -1 0) (1 0 2))))
-;(define g (make-tensor '((_ a) (_ b)) '((1 -3 a) (-3 -1 0) (a 0 2)))) 
+;(define gg (make-tensor '((_ a) (_ b)) '((1 -3 1) (-3 -1 0) (1 0 2))))
+;(define gg (make-tensor '((_ a) (_ b)) '((1 -3 a) (-3 -1 0) (a 0 2)))) 
 ;The second one also works, but it doesn't know how to do simplification right now.
-;(metric '(_ ^) g) ;works
-;(metric '(_ _) g) ;works
-;(metric '(^ ^) g) ;works
-;(einstein-summation (mul (change-index '((^ a) (^ b)) (metric '(^ ^) g)) 
-;                         (change-index '((_ b) (_ c)) (metric '(_ _) g)))) ;'(tensor ((^ a) (_ c)) identity)
+;(metric '(_ ^) gg) ;works
+;(metric '(_ _) gg) ;works
+;(metric '(^ ^) gg) ;works
+
+;(einstein-summation (mul (change-index '((^ a) (^ b)) (metric '(^ ^) gg)) 
+;                         (change-index '((_ b) (_ c)) (metric '(_ _) gg)))) ;'(tensor ((^ a) (_ c)) identity)
+;successfully got the simple diagonal matrix :-)
+;'(tensor ((^ a) (_ c)) ((scalar . 1) (scalar . 0) (scalar . 0)) ((scalar . 0) (scalar . 1) (scalar . 0)) ((scalar . 0) (scalar . 0) (scalar . 1))) 
 
 (define (christoffel index-lst g-tensor coordinate-lst)
   (if (nand (= 3 (length index-lst))
@@ -165,6 +169,9 @@
                          (0 0 (* -1 (** r 2)) 0)
                          (0 0 0 (* -1 (** r 2) (** (sin theta) 2))))))
 (define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) g '(t r theta phi)))
+;Gamma^a_bc
 (define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(t r theta phi)))
+;R^a_bcd
 (define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
-(ricci-scalar g R_ab)
+;R_ab ;It can't be right, because R_ab = R_ba.
+;(ricci-scalar g R_ab)

@@ -2,7 +2,26 @@
 
 (require "fundamental.rkt")
 
-(provide simplify)
+(provide simplify 
+         polynomial-expansion)
+
+;;;
+
+(define (polynomial-expansion exp)
+  (if (product? exp)
+      (let ([sum-lst (filter sum? (get-arg-lst exp))])
+        (if (null? sum-lst)
+            exp
+            (make-sum (map (lambda (x) (make-product (append x (filter (lambda (x) (not (sum? x))) (get-arg-lst exp)))))
+                           (element-combination (map get-arg-lst sum-lst))))))
+      exp))
+
+;(polynomial-expansion '(* x y z))
+;(polynomial-expansion '(* (+ x y) (+ z w)))
+;(polynomial-expansion '(* (+ x y) 5 w)) ;'(+ (* 5 x w) (* 5 y w))
+;(polynomial-expansion '(* (+ x y) (+ z y) 5 w)) ;'(+ (* 5 x z w) (* 5 y z w) (* 5 x y w) (* 5 y y w))
+
+;;;
 
 (define (distributivity exp)
   (if (and (sum? exp) (and-lst (map product? (get-arg-lst exp))))
@@ -25,21 +44,19 @@
   (define (put-in exp)
     (if (product? exp)
         (let ([prod-exp (make-product (get-arg-lst exp))])
-          ;(print prod-exp)
           (cond ((symbol? prod-exp) (put-to-hash (list prod-exp) 1))
                 ((number? (car (get-arg-lst prod-exp)))
                  (put-to-hash (cdr (get-arg-lst prod-exp)) (car (get-arg-lst prod-exp))))
                 (else (put-to-hash (list prod-exp) 1))))
         (put-to-hash (list exp) 1)))
-  (if (sum? exp)
-      (begin
-        ;(println (get-arg-lst exp))
-        (map put-in (get-arg-lst exp))
-        ;(println counter-hash)
-        (make-sum (map (lambda (x) (make-product (cons (cdr x) (car x)))) (hash->list counter-hash))))
-      exp))
+    (if (sum? exp)
+        (begin
+          (map put-in (get-arg-lst exp))
+          (make-sum (map (lambda (x) (make-product (cons (cdr x) (car x)))) (hash->list counter-hash))))
+        exp))
 
 ;(combine-consts '(* 3 a b)) ;'(* 3 a b)
+;(combine-consts '(+ (* 3 a b) f 7))
 ;(combine-consts '(+ (* 3 a b) (* 5 a b) (* b 6 c) f 7)) ;'(+ (* 6 (b c)) f (* 8 (a b)))
 
 (define (combine-sin2-cos2 exp)
@@ -76,11 +93,45 @@
 ;(combine-sin2-cos2 '(+ x y 1 (* a (** (cos (+ z w)) 2)) (* (** (sin (+ z w)) 2) a b))) ;same as before
 ;(combine-sin2-cos2 '(+ x y 1 (* a (** (cos (+ z x)) 2)) (* (** (sin (+ z w)) 2) a))) ;same as before
 
+(define (devition-cancellation exp)
+  (define counter-hash (make-hash))
+  (define (put-to-hash term const)
+    (if (hash-has-key? counter-hash term)
+        (hash-set! counter-hash term (make-sum (list (hash-ref counter-hash term) const)))
+        (hash-set! counter-hash term const)))
+  (define (put-in exp)
+    (if (exponentiation? exp)
+        (let ([expo-exp (make-exponentiation (base exp) (exponent exp))])
+          (cond ((symbol? expo-exp) (put-to-hash expo-exp 1))
+                ((exponentiation? expo-exp)
+                 (put-to-hash (base expo-exp) (exponent expo-exp)))
+                (else (put-to-hash expo-exp 1))))
+        (put-to-hash exp 1)))
+  (if (product? exp)
+      (begin
+        (map put-in (get-arg-lst exp))
+        (make-product (map (lambda (x) (make-exponentiation (car x) (cdr x))) (hash->list counter-hash))))
+      exp))
+
+;(devition-cancellation '(* x y z)) ;'(* y x z)
+;(devition-cancellation '(* x y (** x -1))) ;'y
+;(devition-cancellation '(* x y (** x -2))) ;'(* y (** x -1))
+;(devition-cancellation '(* (+ x 1) y (** x -2) (** (+ x 1) -1))) ;'(* (** x -2) y)
+
 (define (simplify exp)
+  (define (polynomial-expansion-choice exp) ;so in here, I only expand (a+b)c, (a+b)(c+d), but not (a+b)(c+d)(e+f).
+    (if (and (product? exp) (< (length (filter sum? (get-arg-lst exp))) 3))
+        (polynomial-expansion exp)
+        exp))
   (cond ((eqn? exp) (make-eqn (simplify (eqn-LHS exp)) (simplify (eqn-RHS exp))))
         ((sum? exp) ((function-chain (list combine-consts combine-sin2-cos2 distributivity))
                      (make-sum (map simplify (get-arg-lst exp)))))
-        ((product? exp) (make-product (map simplify (get-arg-lst exp))))
+        ((product? exp) ((function-chain (list polynomial-expansion-choice devition-cancellation))
+                         (make-product (map simplify (get-arg-lst exp)))))
+        ((exponentiation? exp) 
+         (if (exponentiation? (base exp))
+             (make-exponentiation (simplify (base (base exp))) (simplify (make-product (list (exponent (base exp)) (exponent exp)))))
+             (make-exponentiation (simplify (base exp)) (simplify (exponent exp)))))
         (else exp)))
 
 ;(simplify '(+ 2 3 x (* x 5) (+ 2 y))) ;'(+ 7 x (* 5 x) y)
@@ -89,3 +140,7 @@
 ;(simplify '(+ x y 1 (* a (** (cos (+ z w)) 2)) (* (** (sin (+ z w)) 2) a))) ;'(+ 1 y x a)
 ;(simplify '(+ x y 1 (* 5 a) (* 6 a (** (cos (* z w)) 2)) (* 6 (** (sin (* z w)) 2) a))) ;'(+ 1 y x (* 11 a))
 ;(simplify '(= (+ 2 3 x y) (* 3 z w 5))) ;'(= (+ 5 y x) (* 15 z w))
+;(simplify '(* (+ x 1) y (** (+ 5 x y (* -1 y) 2) -2) (** (+ x 1) -1))) ;'(* (** (+ 7 x) -2) y)
+
+;(simplify '(* (** (+ -20 (** a 2)) -1) (+ 6 (* -3 (** a 2)) (* -3 (+ 2 (* -1 (** a 2))))))) ;0
+;(simplify '(* (+ x y) (+ x (* -1 y)))) ;Unfortunately, this one doesn't work in current case. The computer doesn't know (* x y) = (* y x).

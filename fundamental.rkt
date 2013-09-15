@@ -126,6 +126,15 @@
 ;(index-in 'c '((a b) (c d) (e f))) ;1
 ;(index-in 'g '((a b) (c d) (e f))) ;#f
 
+(define (element-combination lsts)
+  (cond ((null? lsts) '())
+        ((null? (cdr lsts)) (map list (car lsts)))
+        (else (apply append (map (lambda (x) (map (lambda (y) (cons y x)) (car lsts))) (element-combination (cdr lsts)))))))
+
+;(element-combination '((a b c))) ;'((a) (b) (c))
+;(element-combination '((a b) (d e))) ;'((a d) (b d) (a e) (b e))
+;(element-combination '((a b) (d e) (f g))) ;'((a d f) (b d f) (a e f) (b e f) (a d g) (b d g) (a e g) (b e g))
+
 (define (counter lst)
   (define counter-hash (make-hash))
   (define (put-to-hash ele)
@@ -257,6 +266,8 @@
   (cond ((=number? n 0) 1)
         ((=number? n 1) x)
         ((and (number? x) (number? n)) (expt x n))
+        ((exponentiation? x)
+         (make-exponentiation (base x) (make-product (list (exponent x) n))))
         ((product? x) (make-product (map (lambda (base) (make-exponentiation base n)) (get-arg-lst x))))
         (else (list '** x n))))
 
