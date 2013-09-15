@@ -1,5 +1,7 @@
 #lang racket
 
+(require racket/stream)
+
 (provide (all-defined-out))
 
 ;;;
@@ -135,6 +137,11 @@
 
 ;(counter '(a a b a c a d d b e)) ;'#hash((a . 4) (d . 2) (c . 1) (e . 1) (b . 2))
 ;(counter '((+ a b) (+ c d) (+ 1 2) (+ a b) c)) ;'#hash(((+ c d) . 1) ((+ 1 2) . 1) (c . 1) ((+ a b) . 2))
+
+(define (stream-take n s)
+  (if (= n 0)
+      '()
+      (cons (stream-first s) (stream-take (- n 1) (stream-rest s)))))
 
 ;(define (map-n dim prop lst)
 ;  (if (= dim 1)

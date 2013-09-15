@@ -1,11 +1,9 @@
 #lang racket
 
-(require racket/stream "fundamental.rkt")
+(require racket/stream 
+         "fundamental.rkt")
 
-(define (stream-take n s)
-  (if (= n 0)
-      '()
-      (cons (stream-first s) (stream-take (- n 1) (stream-rest s)))))
+(provide numerical-solve)
 
 ;;;
 
