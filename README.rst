@@ -173,7 +173,7 @@ For ``listplot``, every element in ``lst`` is a list of two numbers, as the x an
 Copyright and License
 =====================
 
-This program has been written by Cong-Xin Qiu. It is protected by the `"GNU Lesser Public License"`_ . It is submitted to `Lisp In Summer Projects 2013`_ .
+This program has been written by Cong-Xin Qiu. It is protected by the `"GNU Lesser Public License"`_ . It is a repo submitted to `Lisp In Summer Projects 2013`_ .
 
 .. _"GNU Lesser Public License": http://www.gnu.org/copyleft/lesser.html
 .. _Lisp In Summer Projects 2013: http://lispinsummerprojects.org/
