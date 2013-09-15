@@ -4,6 +4,8 @@
          2htdp/image
          2htdp/universe)
 
+(provide (all-defined-out))
+
 ;;;
 
 (define scene-background (rectangle 600 480 "solid" "orange"))
@@ -43,48 +45,19 @@
 ;(show-pendulum-in-scene p1)
 ;(shoe-multi-pendulum-in-scene (list p1 p2))
 
-(define pendulum1 (make-pendulum 20 250 300 50 (make-function 'theta1 't)))
+;(define pendulum1 (make-pendulum 20 250 300 50 (make-function 'theta1 't)))
 
-(define L1 (lagrangian (list pendulum1)))
-(define euler-lagrangian-L1 (euler-lagrangian-equation L1 (list (make-function 'theta1 't)) (list (deriv (make-function 'theta1 't) 't)) 't))
+;(define L1 (lagrangian (list pendulum1)))
+;(define euler-lagrangian-L1 (euler-lagrangian-equation L1 (list (make-function 'theta1 't)) (list (deriv (make-function 'theta1 't) 't)) 't))
 ;euler-lagrangian-L1 
-;(solve (car euler-lagrangian-L1) '(deriv (deriv (function theta1 t) t) t))
 
-(define euler-lagrangian-solution (numerical-solve (solve (car euler-lagrangian-L1) '(deriv (deriv (function theta1 t) t) t)) 
-                                     '((function theta1 t) (deriv (function theta1 t) t))
-                                     '(0.3 0) 
-                                     0
-                                     0.1)) ;how quickly the times goes can be adjusted.
+;(define euler-lagrangian-solution (numerical-solve (solve (car euler-lagrangian-L1) '(deriv (deriv (function theta1 t) t) t)) 
+;                                     '((function theta1 t) (deriv (function theta1 t) t))
+;                                     '(0.3 0) 
+;                                     0
+;                                     0.1)) ;how quickly the times goes can be adjusted.
 ;(stream-take 10 euler-lagrangian-solution)
 
-;(stream-first euler-lagrangian-solution)
-;(stream-first euler-lagrangian-solution)
+;(define solution-next (stream-next euler-lagrangian-solution))
+;(animate (lambda (time) ((create-pendulum-moving time) pendulum1 solution-next)))
 
-;(sequence-generate euler-lagrangian-solution)
-;(sequence-generate* euler-lagrangian-solution)
-
-;(define next (stream-next euler-lagrangian-solution))
-
-;(define next
-;  (generator ()
-;             (let loop ([x euler-lagrangian-solution])
-;               (if (null? x)
-;                   0
-;                   (begin
-;                     (yield (stream-first x))
-;                     (loop (stream-rest x)))))))
-
-;(next)
-;(next)
-;(next-solution)
-
-(define solution-next (stream-next euler-lagrangian-solution))
-(animate (lambda (time) ((create-pendulum-moving time) pendulum1 solution-next)))
-
-;(define (create-pendulum-moving time)
-;  (lambda (p solution)
-;    (show-pendulum-in-scene (make-pendulum (p 'mass) (p 'length) (p 'pivotX) (p 'pivotY) (cadr (list-ref solution time))))))
-
-;((create-pendulum-moving 5) pendulum1 (stream-take 10 euler-lagrangian-solution))
-
-;(animate (lambda (time) ((create-pendulum-moving time) pendulum1 (stream-take 100 euler-lagrangian-solution))))
