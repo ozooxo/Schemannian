@@ -23,6 +23,7 @@
     (make-product (list 0.5 mass (simplify (simplify (make-sum (list (make-exponentiation (deriv X 't) 2) (make-exponentiation (deriv Y 't) 2))))))))
   (define (dispatch m)
     (cond ((eq? m 'mass) mass)
+          ((eq? m 'length) length)
           ((eq? m 'pivotX) pivotX)
           ((eq? m 'pivotY) pivotY)
           ((eq? m 'X) X)

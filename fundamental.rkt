@@ -1,6 +1,7 @@
 #lang racket
 
-(require racket/stream)
+(require racket/stream
+         racket/generator)
 
 (provide (all-defined-out))
 
@@ -142,6 +143,15 @@
   (if (= n 0)
       '()
       (cons (stream-first s) (stream-take (- n 1) (stream-rest s)))))
+
+(define (stream-next strm)
+  (generator ()
+             (let loop ([x strm])
+               (if (null? x)
+                   0
+                   (begin
+                     (yield (stream-first x))
+                     (loop (stream-rest x)))))))
 
 ;(define (map-n dim prop lst)
 ;  (if (= dim 1)

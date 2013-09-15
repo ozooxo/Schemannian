@@ -1,6 +1,12 @@
 #lang racket
 
-(require "fundamental.rkt" "calculus.rkt" "mechanical-objects.rkt" "solve.rkt")
+(require "fundamental.rkt"
+         "calculus.rkt")
+
+(provide lagrangian
+         euler-lagrangian-equation)
+
+;;;
 
 (define (lagrangian object-lst)
   (make-sum (append (map (lambda (f) (f 'kinetic-energy)) object-lst)
@@ -12,6 +18,9 @@
                                               0)) coordi-lst coordi-dot-lst))
 
 ;;;
+
+(require "mechanical-objects.rkt"
+         "solve.rkt")
 
 (define pendulum1 (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
 (define pendulum2 (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't))) 
