@@ -110,9 +110,11 @@
            (change-index '((^ i) (^ dummy)) (metric '(^ ^) g-tensor))
            (scalar-mul
             (/ 1 2)
-            (add first-term 
-                 (add (switch-index '((_ dummy) (_ k) (_ j)) first-term)
-                      (scalar-mul -1 (switch-index '((_ j) (_ k) (_ dummy)) first-term)))))))))))
+            (add (add first-term (switch-index '((_ dummy) (_ k) (_ j)) first-term))
+                 ;(scalar-mul -1 (switch-index '((_ j) (_ k) (_ dummy)) first-term))))))))
+                 (scalar-mul -1 (switch-index '((_ k) (_ j) (_ dummy)) first-term)))))))) ;by switch the index like that, 2d sphere turn out to be right. I don't understand why.
+                                                                                          ;seems need to change the opposite way as the equation index ;-?
+))
 
 (define (riemann-tensor index-lst christoffel-gamma coordinate-lst)
   (if (nand (= 4 (length index-lst))
@@ -121,21 +123,44 @@
             (eq? (car (caddr index-lst)) '_)
             (eq? (car (cadddr index-lst)) '_))
       (error "Riemann curvature tensor needs 4 indices, has super-sub-sub-sub in order. You give" index-lst)
-      (let* ([gamma (change-index '((^ i) (_ l) (_ j)) christoffel-gamma)]
-             [partial-gamma (partial-deriv gamma (make-tensor '((_ k)) coordinate-lst))])
+      (let* ([gamma (change-index '((^ i) (_ j) (_ k)) christoffel-gamma)]
+             [partial-gamma (partial-deriv gamma (make-tensor '((_ l)) coordinate-lst))])
         (change-index
          index-lst
          (add
-          (add (switch-index '((^ i) (_ j) (_ k) (_ l)) partial-gamma)
+          (add (switch-index '((^ i) (_ j) (_ l) (_ k)) partial-gamma)
                (scalar-mul -1 (switch-index '((^ i) (_ k) (_ j) (_ l)) partial-gamma)))
           (switch-index
            '((^ i) (_ j) (_ k) (_ l))
            (add (einstein-summation
-                 (mul (change-index '((^ i) (_ k) (_ dummy)) gamma)
-                      (change-index '((^ dummy) (_ l) (_ j)) gamma)))
-                (einstein-summation
                  (mul (change-index '((^ i) (_ l) (_ dummy)) gamma)
-                      (change-index '((^ dummy) (_ k) (_ j)) gamma))))))))))
+                      (change-index '((^ dummy) (_ j) (_ k)) gamma)))
+                (scalar-mul -1 (einstein-summation
+                                (mul (change-index '((^ i) (_ l) (_ dummy)) gamma)
+                                     (change-index '((^ dummy) (_ k) (_ j)) gamma)))))))))))
+
+;(define (riemann-tensor index-lst christoffel-gamma coordinate-lst)
+;  (if (nand (= 4 (length index-lst))
+;            (eq? (car (car index-lst)) '^)
+;            (eq? (car (cadr index-lst)) '_)
+;            (eq? (car (caddr index-lst)) '_)
+;            (eq? (car (cadddr index-lst)) '_))
+;      (error "Riemann curvature tensor needs 4 indices, has super-sub-sub-sub in order. You give" index-lst)
+;      (let* ([gamma (change-index '((^ i) (_ l) (_ j)) christoffel-gamma)]
+;             [partial-gamma (partial-deriv gamma (make-tensor '((_ k)) coordinate-lst))])
+;        (change-index
+;         index-lst
+;         (add
+;          (add (switch-index '((^ i) (_ j) (_ l) (_ k)) partial-gamma)
+;               (scalar-mul -1 (switch-index '((^ i) (_ k) (_ j) (_ l)) partial-gamma)))
+;          (switch-index
+;           '((^ i) (_ j) (_ k) (_ l))
+;           (add (einstein-summation
+;                 (mul (change-index '((^ i) (_ k) (_ dummy)) gamma)
+;                      (change-index '((^ dummy) (_ l) (_ j)) gamma)))
+;                (scalar-mul -1 (einstein-summation
+;                               (mul (change-index '((^ i) (_ l) (_ dummy)) gamma)
+;                                    (change-index '((^ dummy) (_ k) (_ j)) gamma)))))))))))
 
 (define (ricci-curvature-tensor index-lst riemann-tnsr)
   (if (nand (= 2 (length index-lst))
@@ -173,5 +198,25 @@
 (define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(t r theta phi)))
 ;R^a_bcd
 (define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
+R_ab ;At least symmetric right now.
+;(ricci-scalar g R_ab)
+
+;;;
+
+(define gg (make-tensor '((_ a) (_ b)) 
+                        '(((** r 2) 0)
+                          (0 (* (** r 2) (** (sin theta) 2))))))
+
+;(define test (partial-deriv (change-index '((_ dummy) (_ j)) gg)
+;                            (make-tensor '((_ k)) '(theta phi))))
+;test
+;(switch-index '((_ dummy) (_ k) (_ j)) test)
+;(switch-index '((_ j) (_ k) (_ dummy)) test)
+
+;(define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) gg '(theta phi)))
+;Gamma^a_bc
+;(define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(theta phi)))
+;R^a_bcd
+;(define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
 ;R_ab ;It can't be right, because R_ab = R_ba.
 ;(ricci-scalar g R_ab)

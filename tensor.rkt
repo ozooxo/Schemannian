@@ -190,7 +190,7 @@
 ;(define ts (make-tensor (list 'a 'b) (list (list 1 2) (list 3 4))))
 ;(switch-index '(a b) ts)
 ;(switch-index '(b a) ts)
-;(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
+(define tss (make-tensor '(a b c) (list (list (list 1 2) (list 3 4)) (list (list 5 6) (list 7 8)))))
 ;(add tss tss) ;work
 ;(add ts tss) ; Tensor dimensions don't match
 ;(switch-index '(a b c) tss)
