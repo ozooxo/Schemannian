@@ -40,6 +40,52 @@
 
 ;;;
 
+(define (symbol=? x y) (string=? (symbol->string x) (symbol->string y)))
+(define (symbol<? x y) (string<? (symbol->string x) (symbol->string y)))
+(define (symbol<=? x y) (string<=? (symbol->string x) (symbol->string y)))
+(define (symbol>? x y) (string>? (symbol->string x) (symbol->string y)))
+(define (symbol>=? x y) (string>=? (symbol->string x) (symbol->string y)))
+
+(define (expression<? x y)
+  (cond ((and (null? x) (null? y)) false)
+        ((and (number? x) (number? y)) (< x y))
+        ((number? x) true)
+        ((number? y) false)
+        ((and (symbol? x) (symbol? y)) (symbol<? x y))
+        ((symbol? x) true)
+        ((symbol? y) false)
+        ((and (pair? x) (pair? y)) 
+         (cond ((expression<? (car x) (car y)) true)
+               ((expression>? (car x) (car y)) false)
+               (else (expression<? (cdr x) (cdr y)))))
+        (else ("Not an expression" x y))))
+
+(define (expression>? x y)
+  (cond ((and (null? x) (null? y)) false)
+        ((and (number? x) (number? y)) (> x y))
+        ((number? x) false)
+        ((number? y) true)
+        ((and (symbol? x) (symbol? y)) (symbol>? x y))
+        ((symbol? x) false)
+        ((symbol? y) true)
+        ((and (pair? x) (pair? y)) 
+         (cond ((expression>? (car x) (car y)) true)
+               ((expression<? (car x) (car y)) false)
+               (else (expression>? (cdr x) (cdr y)))))
+        (else ("Not an expression" x y))))
+
+;(expression<? 1 3) ;#t
+;(expression<? 1 '(+ a b)) ;#t
+;(expression<? '(+ c d) '(+ a b)) ;#f
+;(expression<? '(+ a b) '(+ c d)) ;#t
+;(expression>? '(+ c d) '(+ a b)) ;#t
+;(expression>? '(+ a b) '(+ c d)) ;#f
+
+;(sort '((+ x y) 2 3 (+ 3 x) 2 (* x 5) (* x y)) expression<?) ;'(2 2 3 (* x 5) (* x y) (+ 3 x) (+ x y))
+;(sort '((+ x y) 2 3 (+ 3 x) 2 (* x 5) (* x y)) expression>?) ;'((+ x y) (+ 3 x) (* x y) (* x 5) 3 2 2)
+
+;;;
+
 ;It is not the same as the Racket "reverse", as it has two arguments.
 (define (list-reverse torev-seq done-seq)
   (if (eq? torev-seq '())
@@ -206,9 +252,9 @@
           (if (number? (car sequence))
               (cons (op-for-num (car sequence) (car sequence-after)) (cdr sequence-after))
               (cons (car sequence-after) (cons (car sequence) (cdr sequence-after)))))))
-  (gather-num-recur sequence))
+  (gather-num-recur (sort sequence expression<?)))
 
-;(gather-num + 0 (list 1 'a 2 'b 3 'c 'd)) ;'(6 a b c d)
+;(gather-num + 0 (list 1 'a 2 'd 3 'c 'b)) ;'(6 a b c d)
 
 ;;;
 
@@ -244,7 +290,7 @@
 (define (make-sum args) (make-op + '+ 0 (merge-same-op sum? args)))
 
 ;(merge-same-op sum? '(1 2 (+ 3 4) (* 5 6))) ;'(1 2 3 4 (* 5 6))
-;(make-sum '(a b (+ 1 c) 3 (* 2 b))) ;'(+ 4 a b c (* 2 b))
+;(make-sum '(a (+ 1 c) b 3 (* 2 b))) ;'(+ 4 a b c (* 2 b))
 
 ;(make-sum '(2 3 (grassmannian . x) x (grassmannian . z) 4)) ;It also works with elements which has tags.
 
@@ -256,7 +302,7 @@
           ((eq? (cadr result) '0) 0)
           (else result))))
 
-;(make-product '(1 a (* 2 f e) b 4 c (+ 4 d))) ;'(* 8 a f e b c (+ 4 d))
+;(make-product '(1 a (* 2 f e) b 4 c (+ 4 d))) ;'(* 8 a b c e f (+ 4 d))
 ;(make-product (list '(+ a b c))) ;'(+ a b c)
 
 (define (exponentiation? x) (and (pair? x) (eq? (get-op x) '**)))

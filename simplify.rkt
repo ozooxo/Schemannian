@@ -44,20 +44,22 @@
   (define (put-in exp)
     (if (product? exp)
         (let ([prod-exp (make-product (get-arg-lst exp))])
-          (cond ((symbol? prod-exp) (put-to-hash (list prod-exp) 1))
+          (cond ((symbol? prod-exp) (put-to-hash prod-exp 1))
+                ((and (number? (car (get-arg-lst prod-exp))) (null? (cddr (get-arg-lst prod-exp))))
+                 (put-to-hash (cadr (get-arg-lst prod-exp)) (car (get-arg-lst prod-exp))))
                 ((number? (car (get-arg-lst prod-exp)))
-                 (put-to-hash (cdr (get-arg-lst prod-exp)) (car (get-arg-lst prod-exp))))
-                (else (put-to-hash (list prod-exp) 1))))
-        (put-to-hash (list exp) 1)))
+                 (put-to-hash (make-product (cdr (get-arg-lst prod-exp))) (car (get-arg-lst prod-exp))))
+                (else (put-to-hash prod-exp 1))))
+        (put-to-hash exp 1)))
     (if (sum? exp)
         (begin
           (map put-in (get-arg-lst exp))
-          (make-sum (map (lambda (x) (make-product (cons (cdr x) (car x)))) (hash->list counter-hash))))
+          (make-sum (map (lambda (x) (make-product (list (cdr x) (car x)))) (hash->list counter-hash))))
         exp))
 
 ;(combine-consts '(* 3 a b)) ;'(* 3 a b)
-;(combine-consts '(+ (* 3 a b) f 7))
-;(combine-consts '(+ (* 3 a b) (* 5 a b) (* b 6 c) f 7)) ;'(+ (* 6 (b c)) f (* 8 (a b)))
+;(combine-consts '(+ (* 3 a b) f 7)) ;'(+ 7 f (* 3 a b))
+;(combine-consts '(+ (* 3 a b) (* 5 a b) (* b 6 c) f 7)) ;'(+ 7 f (* 6 b c) (* 8 a b))
 
 (define (combine-sin2-cos2 exp)
   (define (is-cos2? x) (and (exponentiation? x) (= (exponent x) 2) (cos? (base x))))
@@ -124,7 +126,7 @@
         (polynomial-expansion exp)
         exp))
   (cond ((eqn? exp) (make-eqn (simplify (eqn-LHS exp)) (simplify (eqn-RHS exp))))
-        ((sum? exp) ((function-chain (list combine-consts combine-sin2-cos2 distributivity))
+        ((sum? exp) ((function-chain (list combine-sin2-cos2 distributivity combine-consts))
                      (make-sum (map simplify (get-arg-lst exp)))))
         ((product? exp) ((function-chain (list polynomial-expansion-choice devition-cancellation))
                          (make-product (map simplify (get-arg-lst exp)))))
@@ -144,3 +146,5 @@
 
 ;(simplify '(* (** (+ -20 (** a 2)) -1) (+ 6 (* -3 (** a 2)) (* -3 (+ 2 (* -1 (** a 2))))))) ;0
 ;(simplify '(* (+ x y) (+ x (* -1 y)))) ;Unfortunately, this one doesn't work in current case. The computer doesn't know (* x y) = (* y x).
+
+;(simplify '(* (+ 2 (* (** x -2) (** y 2)) (* -1 (** y 2) (** x -2))) (** r -2))) ;need permutation when check hash...

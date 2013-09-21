@@ -188,35 +188,3 @@
 ;(define r_ab (ricci-curvature-tensor '((_ a) (_ b)) r_abcd)) ;It is symmetric right now.
 ;(ricci-scalar g r_ab) ;works. no simplification. so currently can't check whether right or now.
 
-(define g (make-tensor '((_ a) (_ b)) 
-                       '(((+ 1 (* -1 rs (** r -1))) 0 0 0)
-                         (0 (* -1 (** (+ 1 (* -1 rs (** r -1))) -1)) 0 0)
-                         (0 0 (* -1 (** r 2)) 0)
-                         (0 0 0 (* -1 (** r 2) (** (sin theta) 2))))))
-(define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) g '(t r theta phi)))
-;Gamma^a_bc
-(define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(t r theta phi)))
-;R^a_bcd
-(define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
-R_ab ;At least symmetric right now.
-;(ricci-scalar g R_ab)
-
-;;;
-
-(define gg (make-tensor '((_ a) (_ b)) 
-                        '(((** r 2) 0)
-                          (0 (* (** r 2) (** (sin theta) 2))))))
-
-;(define test (partial-deriv (change-index '((_ dummy) (_ j)) gg)
-;                            (make-tensor '((_ k)) '(theta phi))))
-;test
-;(switch-index '((_ dummy) (_ k) (_ j)) test)
-;(switch-index '((_ j) (_ k) (_ dummy)) test)
-
-;(define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) gg '(theta phi)))
-;Gamma^a_bc
-;(define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(theta phi)))
-;R^a_bcd
-;(define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
-;R_ab ;It can't be right, because R_ab = R_ba.
-;(ricci-scalar g R_ab)
