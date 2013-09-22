@@ -128,6 +128,13 @@
 ;(list-intersect '((x y 1) (y 2 x) (x 2 3))) ;'(x)
 ;(list-intersect '((x y 1 x) (y 2 x x) (x 2 3 x))) ;'(x) ;It currently doesn't count duplicate element.
 
+(define (list-mixed-up lst ele)
+  (if (null? (cdr lst))
+      lst
+      (cons (car lst) (cons ele (list-mixed-up (cdr lst) ele)))))
+
+;(list-mixed-up '(x y z w) 'a) ;'(x a y a z a w)
+
 (define (members v-lst lst)
   (define (members-iter v-lst lst)
     (if (null? v-lst)
@@ -267,6 +274,7 @@
 
 (define (make-deriv exp var) (list 'deriv exp var))
 (define (deriv? exp) (and (pair? exp) (eq? (get-op exp) 'deriv)))
+(define (get-deriv-kernel exp) (cadr exp))
 (define (get-deriv-arg exp) (caddr exp))
 
 ;;;
