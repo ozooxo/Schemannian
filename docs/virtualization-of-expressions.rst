@@ -5,7 +5,7 @@ Virtualization of Expressions
 
 .. code:: scheme
 
-    (require "simplify.rkt")
+    (require "show-expression.rkt")
 
 To use that, you have the function ``show-expression``.
 

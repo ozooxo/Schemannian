@@ -170,6 +170,19 @@ and
 
 For ``listplot``, every element in ``lst`` is a list of two numbers, as the x and y coordinate of the plotting point.
 
+The Schemannian Reference
+=========================
+
+`Expressions`_
+`Virtualization of Expressions`_
+`Simplification of Expressions`_
+`Basic Calculus`_
+
+.. _Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/expressions.rst
+.. _Virtualization of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/virtualization-of-expressions.rst
+.. _Simplification of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/simplify.rst
+.. _Basic Calculus: https://github.com/ozooxo/Schemannian/blob/master/docs/calculus.rst
+
 Copyright and License
 =====================
 
