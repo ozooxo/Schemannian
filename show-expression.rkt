@@ -9,7 +9,7 @@
   (define (show x) (text x 24 "black"))
   (define blank (text " " 12 "black"))
   (define show+ (show "+"))
-  ;(define show* (show "*"))
+  (define show* blank)
   (define (add-parentheses x) (beside (show "(") x (show ")")))
   (define (besidee lst)
     (let ([len (length lst)])
@@ -26,6 +26,11 @@
         exp))
   (cond ((number? exp) (show (number->string exp)))
         ((variable? exp) (show (symbol->string exp)))
+        ((eqn? exp) (beside (show-expression (eqn-LHS exp))
+                            blank
+                            (show "=")
+                            blank
+                            (show-expression (eqn-RHS exp))))
         ((sum? exp)
          (let ([to-show (besidee (list-mixed-up (map show-expression (get-arg-lst exp)) show+))])
            (if (eq? parentheses? false)
@@ -35,8 +40,8 @@
          (define (denominator? x) (and (exponentiation? x) (number? (exponent x)) (< (exponent x) 0)))
          (let ([numerator (filter (function-chain (list not denominator?)) (get-arg-lst exp))]
                [denominator (map (lambda (x) (make-exponentiation (base x) (- (exponent x)))) (filter denominator? (get-arg-lst exp)))])
-           (let ([draw-numerator (besidee (map (lambda (x) (show-expression x true)) numerator))]
-                 [draw-denominator (besidee (map (lambda (x) (show-expression x true)) denominator))])
+           (let ([draw-numerator (besidee (list-mixed-up (map (lambda (x) (show-expression x true)) numerator) show*))]
+                 [draw-denominator (besidee (list-mixed-up (map (lambda (x) (show-expression x true)) denominator) show*))])
              (if (null? denominator)
                  draw-numerator
                  (above 
@@ -69,10 +74,21 @@
               draw-d-bottom))))
         ))
 
-;(show-expression '(* 2 b (** c -2)))
+;(show-expression '(* 2 b))
 ;(show-expression '(+ 3 x y))
 ;(show-expression '(** x (+ y z)))
-(show-expression '(* 3 (** x z) y (+ a 2) (** z (* 2 b (** c -1))) (** w -2) (** (cos x) -1)))
+;(show-expression '(* 3 (** x z) y (+ a 2) (** z (* 2 b (** c -1))) (** w -2) (** (cos x) -1)))
 
-(show-expression '(deriv (+ 2 (function x t)) t))
-(show-expression '(deriv (deriv (function x t) t) t))
+;(show-expression '(deriv (+ 2 (function x t)) t))
+;(show-expression '(deriv (deriv (function x t) t) t))
+
+;(show-expression '(= F (* G m1 m2 (** r -2))))
+;(show-expression '(= (sin (+ x y)) (+ (* (sin x) (cos y)) (* (cos x) (sin y)))))
+
+;(show-expression '(= (+ (* m1 (** l1 2) (deriv (deriv (function theta1 t) t) t)) (* 9.8 m1 l1 (sin (function theta1 t)))) 0))
+
+;(show-expression '(= (sin (+ x y)) (+ (* (sin x) (cos y)) (* (cos x) (sin y)))))
+
+;(show-expression '(= (+ (* (+ 1 (sin x) (cos x)) (** (+ 1 (sin x) (* -1 (cos x))) -1))
+;                        (* (+ 1 (sin x) (* -1 (cos x))) (** (+ 1 (sin x) (cos x)) -1)))
+;                     (* 2 (** (cos x) -1))))

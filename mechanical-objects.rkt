@@ -4,17 +4,22 @@
          "calculus.rkt" 
          "simplify.rkt")
 
-(provide make-pendulum)
+(provide mechanical-objects? make-pendulum)
+
+;;;
+
+(define (mechanical-objects? x)
+  (not (or (eq? (x 'potential-energy) 'not-match) (eq? (x 'kinetic-energy) 'not-match))))
 
 ;;;
 
 (define g 9.8) 
 
-(define (make-pendulum mass length pivotX pivotY amplitude)
+(define (make-pendulum mass string-length pivotX pivotY amplitude)
   (define X
-    (make-sum (list pivotX (make-product (list length (make-sin amplitude))))))
+    (make-sum (list pivotX (make-product (list string-length (make-sin amplitude))))))
   (define Y
-    (make-sum (list pivotY (make-product (list -1 length (make-cos amplitude))))))
+    (make-sum (list pivotY (make-product (list -1 string-length (make-cos amplitude))))))
   (define deltaX (make-sum (list pivotX (make-product (list -1 X)))))
   (define deltaY (make-sum (list pivotY (make-product (list -1 Y)))))
   (define potential-energy
@@ -23,7 +28,7 @@
     (make-product (list 0.5 mass (simplify (simplify (make-sum (list (make-exponentiation (deriv X 't) 2) (make-exponentiation (deriv Y 't) 2))))))))
   (define (dispatch m)
     (cond ((eq? m 'mass) mass)
-          ((eq? m 'length) length)
+          ((eq? m 'length) string-length)
           ((eq? m 'pivotX) pivotX)
           ((eq? m 'pivotY) pivotY)
           ((eq? m 'X) X)
@@ -31,7 +36,8 @@
           ((eq? m 'deltaX) deltaX)
           ((eq? m 'deltaY) deltaY)
           ((eq? m 'potential-energy) potential-energy)
-          ((eq? m 'kinetic-energy) kinetic-energy)))
+          ((eq? m 'kinetic-energy) kinetic-energy)
+          (else 'not-match)))
   dispatch) 
 
 ;(define pendulum1 (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))

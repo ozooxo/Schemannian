@@ -1,4 +1,8 @@
+The Schemannian Reference
+=========================
+
 Basic Calculus
+--------------
 
 "Schemannian" can do chain rule level derivations and kindergarten level integrals. It has two functions ``deriv`` and ``integrate``.
 

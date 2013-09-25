@@ -11,6 +11,9 @@
 (define (same-variable? v1 v2)
   (and (variable? v1) (variable? v2) (eq? v1 v2)))
 
+(define (expression? x)
+  (or (number? x) (variable? x) (pair? x)))
+
 (define (=number? exp num)
   (and (number? exp) (= exp num)))
 
@@ -129,9 +132,9 @@
 ;(list-intersect '((x y 1 x) (y 2 x x) (x 2 3 x))) ;'(x) ;It currently doesn't count duplicate element.
 
 (define (list-mixed-up lst ele)
-  (if (null? (cdr lst))
-      lst
-      (cons (car lst) (cons ele (list-mixed-up (cdr lst) ele)))))
+  (cond ((null? lst) '())
+        ((null? (cdr lst)) lst)
+        (else (cons (car lst) (cons ele (list-mixed-up (cdr lst) ele))))))
 
 ;(list-mixed-up '(x y z w) 'a) ;'(x a y a z a w)
 

@@ -12,6 +12,7 @@
 (define pendulum2 (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't))) 
 
 (define L (lagrangian (list pendulum1 pendulum2)))
+L
 (define euler-lagrangian-L
   (euler-lagrangian-equation L
                              (list (make-function 'theta1 't) (make-function 'theta2 't))

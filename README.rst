@@ -4,80 +4,19 @@ Schemannian
 
 As a scheme/Racket based package for symbolic mathematics for physicist, "Schemannian" currently supports a realization of Euler-Lagrangian Equation is classical physics, Riemannian geometry and General Relativity calculations, and simple Grassmannian (Berezin) Calculus.
 
-Installation
-============
+"Schemannian" is a project submitted to `Lisp In Summer Projects 2013`_.
 
-"Schemannian" is written and debugged using Racket v5.3.1. You can download and install Racket from http://racket-lang.org/download/ .
+.. _Lisp In Summer Projects 2013: http://lispinsummerprojects.org/
 
-Currently, to run examples (or try calculating something new) using this package, you can just uncomment the debug code and run the relevant files. To run Racket files, you can either use DrRacket, or run commands like
-
-::
-
-    $ racket riemannian.rkt
-
-Reference Manual
+Test Environment
 ================
 
-Expressions
------------
+"Schemannian" is written and debugged using `Racket`_ v5.3.1 in a 64-bit Ubuntu 13.04 (Raring Ringtail) computer. Racket is installed by the default setting of ``sudo apt-get install racket``.
 
-Following the Lisp family rule, "Schemennian" uses prefix notations. Every value in a list can be either a number or a symbol. It currently has only limited number of operations (which are noted as symbols), including ``'+``, ``'*``, ``'**`` (exponential function), ``'log``, ``'sin``, and ``'cos``.
+.. _Racket: http://racket-lang.org/
 
-For example, :math:`(3 a \sin c)^2 + d` can be written as
-
-.. code:: scheme
-
-    '(+ (** (* 3 a (sin c)) 2) d)
-
-Simplification of Expressions
------------------------------
-
-"Schemannian" currently have some basic capability of simplifying expressions, such as combining like terms by distributive property of multiplication, using Pythagorean trigonometric identity to simplify ``(+ (** (sin x) 2) (** (cos x) 2))`` to ``1``, etc.
-
-To use the function ``simplify``, we do
-
-.. code:: scheme
-
-    (require "simplify.rkt")
-
-    (simplify '(+ x y 1 (* 5 a) (* 6 a (** (cos (* z w)) 2)) (* 6 (** (sin (* z w)) 2) a)))
-
-and it will give us ``'(+ 1 y x (* 11 a))``.
-
-Basic Calculus
---------------
-
-"Schemannian" can do chain rule level derivations and kindergarten level integrals. However, as it currently only have limited ability to simplify arithmetic expression, it sometimes gives really overcomplicated results. Examples for functions ``deriv`` and ``integrate`` are show as below.
-
-.. code:: scheme
-
-    (require "calculus.rkt")
-
-    (deriv '(** (+ 3 (* x 2) y) x) 'x)
-    (integrate '(+ (** x 3) y 2) 'x)
-
-Linear Algebra
---------------
-
-"Schemannian" vectors are one-dimensional scheme list such as ``'(1 2 a 3 b)``, and matrices are two-dimensional list such as ``'((a 1) (2 b))``. Current supported functions include
-
-.. code:: scheme
-
-    (require "linear-algebra.rkt")
-
-    (dot-product-vector <vector> <vector>)
-    (matrix-*-vector <matrix> <vector>)
-    (transpose-mat <matrix>)
-    (matrix-*-matrix <matrix> <matrix>)
-
-    (mat-trace <matrix>)
-    (mat-determinant <matrix>)
-    (mat-inverse <matrix>)
-
-Euler-Lagrangian Equation
--------------------------
-
-To calculate the equation of motion from the Lagrangian of a classical mechanical system, we first need to define the the closure of mechanical objects with dispatching ``kinetic-energy`` and ``potential-energy``. For example, in ``mechanical-objects.rkt`` we defined ``make-pendulum`` which works for both simple pendulum and double (or multiple) pendulum. Then, the functions ``lagrangian`` and ``euler-lagrangian-equation`` in ``lagrangian.rkt`` can give you the Lagrangian and the set of equations of motion of your defined mechanical system.
+Highlights
+==========
 
 Tensor Operations
 -----------------
@@ -137,56 +76,48 @@ Current supported functions include
     (grassmannian-integrate superfield theta1)
     (grassmannian-deriv superfield theta1)
 
-Plotting
---------
-
-"Schemannian" supports some functions for plotting and data visualization. To use the supported ``plot`` and ``listplot``, you want to import the relevant files.
-
-.. code:: scheme
-
-    (require "plot.rkt")
-
-The properties of the functions are
-
-.. code:: scheme
-
-    (plot func x-min x-max y-min y-max) → pict?
-        func : procedure?
-        x-min : real?
-        x-max : real?
-        y-min : real?
-        y-max : real?
-
-and 
-
-.. code:: scheme
-
-    (listplot lst x-min x-max y-min y-max) → pict?
-        lst : list? 
-        x-min : real?
-        x-max : real?
-        y-min : real?
-        y-max : real?
-
-For ``listplot``, every element in ``lst`` is a list of two numbers, as the x and y coordinate of the plotting point.
-
 The Schemannian Reference
 =========================
 
-`Expressions`_
-`Virtualization of Expressions`_
-`Simplification of Expressions`_
-`Basic Calculus`_
+Supported Math Functions
+------------------------
 
+`Expressions`_
 .. _Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/expressions.rst
+
+`Virtualization of Expressions`_
 .. _Virtualization of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/virtualization-of-expressions.rst
+
+`Simplification of Expressions`_
 .. _Simplification of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/simplify.rst
+
+`Linear Algebra`_
+.. _Linear Algebra: https://github.com/ozooxo/Schemannian/blob/master/docs/linear-algebra.rst
+
+`Equation Solving`_
+.. _Equation Solving: https://github.com/ozooxo/Schemannian/blob/master/docs/equation-solving.rst
+
+`Basic Calculus`_
 .. _Basic Calculus: https://github.com/ozooxo/Schemannian/blob/master/docs/calculus.rst
+
+`Numerical Differential Equation Solving`_
+.. _Numerical Differential Equation Solving: https://github.com/ozooxo/Schemannian/blob/master/docs/numerical-differential-equation.rst
+
+`Data Virtualization`_
+.. _Data Virtualization: https://github.com/ozooxo/Schemannian/blob/master/docs/data-virtualization.rst
+
+Physics Related Functions
+-------------------------
+
+`Euler Lagrangian Equation`_
+.. _Euler Lagrangian Equation: https://github.com/ozooxo/Schemannian/blob/master/docs/euler-lagrangian-equation.rst
+
+`Riemannian Geometry and General Relativity`_
+.. _Riemannian Geometry and General Relativity: https://github.com/ozooxo/Schemannian/blob/master/docs/riemannian-geometry-general-relativity.rst
 
 Copyright and License
 =====================
 
-This program has been written by Cong-Xin Qiu. It is protected by the `"GNU Lesser Public License"`_ . It is a repo submitted to `Lisp In Summer Projects 2013`_ .
+This program has been written by Cong-Xin Qiu. It is protected by the `"GNU Lesser General Public License"`_. 
 
 .. _"GNU Lesser Public License": http://www.gnu.org/copyleft/lesser.html
-.. _Lisp In Summer Projects 2013: http://lispinsummerprojects.org/

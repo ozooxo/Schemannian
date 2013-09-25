@@ -40,7 +40,7 @@
 
 ;;;
 
-(require "plot.rkt")
+;(require "plot.rkt")
 
 ;(define solution (numerical-solve '(= (deriv (deriv (function theta1 t) t) t) (function theta1 t)) 
 ;                                  '((function theta1 t) (deriv (function theta1 t) t))

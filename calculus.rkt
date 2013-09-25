@@ -54,6 +54,8 @@
 ;(deriv '(log (** x 3)) 'x) ;'(* (** (** x 3) -1) (* 3 (** x 2)))
 ;(deriv '(sin (* 3 x)) 'x) ;'(* 3 (cos (* 3 x)))
 
+;(deriv '(** (+ 3 (* x 2) y) (sin x)) 'x)
+
 ;(deriv '(+ x y) '+) ;0 ;It shows a bug that '+ '* are also symbols. The bug is not corrected.
 
 ;(define xt (make-function 'x 't))

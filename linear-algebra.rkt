@@ -7,6 +7,22 @@
 
 ;;;
 
+(define (linear-algebra-vector? v)
+  (and (list? v) (and-lst (map (lambda (x) (or (number? x) (variable? x) (expression? x))) v))))
+
+;(linear-algebra-vector? '(1 2 3 4))
+;(linear-algebra-vector? '(1 2 3 x))
+;(linear-algebra-vector? '(1 2 (3 4) 4))
+
+(define (linear-algebra-matrix? m)
+  (and (list? m) (and-lst (map linear-algebra-vector? m)) (= 1 (set-count (list->set (map length m))))))
+
+;(linear-algebra-matrix? '((1 2) (3 4)))
+;(linear-algebra-matrix? '(1 2 3 4))
+;(linear-algebra-matrix? '((1 2) (3 4 5)))
+
+;;;
+
 (define (identity-mat dim)
   (define (one-zeroes-lst dim)
     (define (one-zeroes-iter d)
