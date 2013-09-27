@@ -22,8 +22,10 @@ Highlights
 
 .. code:: scheme
 
-    (define pendulum1 (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
-    (define pendulum2 (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't)))
+    (define pendulum1
+      (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
+    (define pendulum2
+      (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't)))
 
     (define L (lagrangian (list pendulum1 pendulum2)))
     (define euler-lagrangian-L
@@ -99,4 +101,4 @@ Copyright and License
 
 This program has been written by Cong-Xin Qiu. It is protected by the `"GNU Lesser General Public License"`_. 
 
-.. _"GNU Lesser Public License": http://www.gnu.org/copyleft/lesser.html
+.. _"GNU Lesser General Public License": http://www.gnu.org/copyleft/lesser.html

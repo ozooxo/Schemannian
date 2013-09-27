@@ -41,7 +41,8 @@ For example, the following code can give you the equation of motion of a symboli
              "mechanical-objects.rkt"
              "solve.rkt")
 
-    (define pendulum1 (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
+    (define pendulum1
+      (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
 
     (define L1 (lagrangian (list pendulum1)))
     (define euler-lagrangian-L1 (euler-lagrangian-equation L1
@@ -61,8 +62,10 @@ And this will give you the equation of motion of the double pendulum,
 
 .. code:: scheme
 
-    (define pendulum1 (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
-    (define pendulum2 (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't)))
+    (define pendulum1
+      (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
+    (define pendulum2
+      (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't)))
 
     (define L (lagrangian (list pendulum1 pendulum2)))
     (define euler-lagrangian-L
