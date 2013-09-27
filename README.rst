@@ -2,7 +2,7 @@
 Schemannian
 ===========
 
-As a scheme/Racket based package for symbolic mathematics for physicist, "Schemannian" currently supports a realization of Euler-Lagrangian Equation is classical physics, Riemannian geometry and General Relativity calculations, and simple Grassmannian (Berezin) Calculus.
+As a scheme/Racket based package for symbolic mathematics for physicist, "Schemannian" currently supports a realization of Euler-Lagrangian Equation is classical physics, Riemannian geometry and General Relativity calculations, and simple Grassmannian Calculus.
 
 "Schemannian" is a project submitted to `Lisp In Summer Projects 2013`_.
 
@@ -83,27 +83,28 @@ Supported Math Functions
 ------------------------
 
 `Expressions`_
-.. _Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/expressions.rst
 
 `Virtualization of Expressions`_
-.. _Virtualization of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/virtualization-of-expressions.rst
 
 `Simplification of Expressions`_
-.. _Simplification of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/simplify.rst
 
 `Linear Algebra`_
-.. _Linear Algebra: https://github.com/ozooxo/Schemannian/blob/master/docs/linear-algebra.rst
 
 `Equation Solving`_
-.. _Equation Solving: https://github.com/ozooxo/Schemannian/blob/master/docs/equation-solving.rst
 
 `Basic Calculus`_
-.. _Basic Calculus: https://github.com/ozooxo/Schemannian/blob/master/docs/calculus.rst
 
 `Numerical Differential Equation Solving`_
-.. _Numerical Differential Equation Solving: https://github.com/ozooxo/Schemannian/blob/master/docs/numerical-differential-equation.rst
 
 `Data Virtualization`_
+
+.. _Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/expressions.rst
+.. _Virtualization of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/virtualization-of-expressions.rst
+.. _Simplification of Expressions: https://github.com/ozooxo/Schemannian/blob/master/docs/simplify.rst
+.. _Linear Algebra: https://github.com/ozooxo/Schemannian/blob/master/docs/linear-algebra.rst
+.. _Equation Solving: https://github.com/ozooxo/Schemannian/blob/master/docs/equation-solving.rst
+.. _Basic Calculus: https://github.com/ozooxo/Schemannian/blob/master/docs/calculus.rst
+.. _Numerical Differential Equation Solving: https://github.com/ozooxo/Schemannian/blob/master/docs/numerical-differential-equation.rst
 .. _Data Virtualization: https://github.com/ozooxo/Schemannian/blob/master/docs/data-virtualization.rst
 
 Physics Related Functions

@@ -57,7 +57,7 @@ which equals
 
     '((= (+ (* m1 (** l1 2) (deriv (deriv (function theta1 t) t) t)) (* 9.8 m1 l1 (sin (function theta1 t)))) 0))
 
-And this will give you the equation of motion of a double pendulum,
+And this will give you the equation of motion of the double pendulum,
 
 .. code:: scheme
 
@@ -71,7 +71,9 @@ And this will give you the equation of motion of a double pendulum,
                                  (list (deriv (make-function 'theta1 't) 't) (deriv (make-function 'theta2 't) 't))
                                  't))
 
-which is really complicated.
+    euler-lagrangian-L
+
+which are two really complicated equations.
 
 These two examples can be find in `symbolic-simple-pendulum.rkt`_ and `symbolic-double-pendulum.rkt`_.
 
