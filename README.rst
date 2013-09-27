@@ -18,63 +18,37 @@ Test Environment
 Highlights
 ==========
 
-Tensor Operations
------------------
-
-You can make scalar and tensor objects by using ``(make-scalar <expression>)`` and ``(make-tensor <index-lst> <components-as-nested-lst-of-expressions>)``. ``<index-lst>`` can be any possible scheme list, form the most simplified case ``'(a b c)`` to the more Einstein notation friendly list, such as ``'((^ a) (_ b) (_ c))``. To use the above function, you need to
+"Schemannian" can calculate the Lagrangian and the equation of motion (by Euler-Lagrangian equation) of a classical mechanical system. For example, this piece of code will give you the equation of motion of the double pendulum.
 
 .. code:: scheme
 
-    (require "tensor.rkt")
+    (define pendulum1 (make-pendulum 'm1 'l1 'pivotX1 'pivotY1 (make-function 'theta1 't)))
+    (define pendulum2 (make-pendulum 'm2 'l2 (pendulum1 'X) (pendulum1 'Y) (make-function 'theta2 't)))
 
-Tensor operations includes: ``add``, which can add two scalars or two tensors with the same form; ``mul``, which can multiply two scalars, one scalar and one tensor (by means of scalar multiplication), and two tensors (by means of tensor product); and ``partial-deriv``, which results higher ranked tensors.
+    (define L (lagrangian (list pendulum1 pendulum2)))
+    (define euler-lagrangian-L
+      (euler-lagrangian-equation L
+                                 (list (make-function 'theta1 't) (make-function 'theta2 't))
+                                 (list (deriv (make-function 'theta1 't) 't) 
+                                       (deriv (make-function 'theta2 't) 't))
+                                 't))
 
-Riemannian Geometry and General Relativity Calculations
--------------------------------------------------------
+That is interesting, because Lagrangian formulation and Euler-Lagrangian equation are extremely important for loop calculations in quantum field theory. Those calculations are really tedious, and currently there is *NO* general propose package to do them.
 
-"Schemannian" is capable to calculate Riemann curvature tensor, Ricci curvature tensor, and Ricci scalar from the metric (which is treated as a rank-2 tensor). However, it currently still doesn't know how to simplify the result.
+"Schemannian" gives an interface to virtualize the motion of mechanical objects by Euler-Lagrangian equation.
 
-Here is an example to calculate the Ricci scalar of the Schwarzschild metric:
+"Schemannian" is capable to calculate typical General Relativity expressions such as Christoffel symbols, Riemann curvature tensor, Ricci curvature tensor, and Ricci scalar from the metric. For example, the following code calculate the curvature on the surface of a sphere.
 
 .. code:: scheme
-
-    (require "tensor.rkt")
-    (require "riemannian.rkt")
 
     (define g (make-tensor '((_ a) (_ b)) 
-                           '(((+ 1 (* -1 rs (** r -1))) 0 0 0)
-                             (0 (* -1 (** (+ 1 (* -1 rs (** r -1))) -1)) 0 0)
-                             (0 0 (* -1 (** r 2)) 0)
-                             (0 0 0 (* -1 (** r 2) (** (sin theta) 2))))))
-    (define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) g '(t r theta phi)))
-    (define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(t r theta phi)))
+                           '(((** r 2) 0)
+                             (0 (* (** r 2) (** (sin theta) 2))))))
+
+    (define Gamma^a_bc (christoffel '((^ a) (_ b) (_ c)) g '(theta phi)))
+    (define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(theta phi)))
     (define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
     (ricci-scalar g R_ab)
-
-Grassmannian (Berezin) Calculus
--------------------------------
-
-"Schemannian" can do some easy Grassmannian calculus. In the current design, Grassmannian numbers are made by ``make-grassmannian``; however, they add and multiple normal numbers by normal expressions (i.e., it doesn't cover the normal numbers by further tag system). For example, you do a general two-dimensional superfield by
-
-.. code:: scheme
-
-    (require "grassmannian-calculus.rkt")
-
-    (define theta1 (make-grassmannian 'theta1))
-    (define theta2 (make-grassmannian 'theta2))
-
-    (define superfield (list '+ 'a 
-                                (list '* theta1 'b1)
-                                (list '* theta2 'b2)
-                                (list '* theta1 theta2 'c)))
-
-Current supported functions include
-
-.. code:: scheme
-
-    (simplify-grassmannian (list '* 3 'x theta1 2 theta2 theta1)) ;It should give you zero
-    (grassmannian-integrate superfield theta1)
-    (grassmannian-deriv superfield theta1)
 
 The Schemannian Reference
 =========================
@@ -111,10 +85,14 @@ Physics Related Functions
 -------------------------
 
 `Euler Lagrangian Equation`_
-.. _Euler Lagrangian Equation: https://github.com/ozooxo/Schemannian/blob/master/docs/euler-lagrangian-equation.rst
 
 `Riemannian Geometry and General Relativity`_
+
+`Grassmannian Calculus`_
+
+.. _Euler Lagrangian Equation: https://github.com/ozooxo/Schemannian/blob/master/docs/euler-lagrangian-equation.rst
 .. _Riemannian Geometry and General Relativity: https://github.com/ozooxo/Schemannian/blob/master/docs/riemannian-geometry-general-relativity.rst
+.. _Grassmannian Calculus: https://github.com/ozooxo/Schemannian/blob/master/docs/grassmannian-calculus.rst
 
 Copyright and License
 =====================

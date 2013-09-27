@@ -68,7 +68,8 @@ And this will give you the equation of motion of the double pendulum,
     (define euler-lagrangian-L
       (euler-lagrangian-equation L
                                  (list (make-function 'theta1 't) (make-function 'theta2 't))
-                                 (list (deriv (make-function 'theta1 't) 't) (deriv (make-function 'theta2 't) 't))
+                                 (list (deriv (make-function 'theta1 't) 't)
+                                       (deriv (make-function 'theta2 't) 't))
                                  't))
 
     euler-lagrangian-L

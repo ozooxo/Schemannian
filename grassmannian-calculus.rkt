@@ -2,6 +2,10 @@
 
 (require "generic-hash.rkt" "fundamental.rkt")
 
+(provide (all-defined-out))
+
+;;;
+
 (define (grassmannian? datum) 
   (cond ((number? datum) false)
         ((variable? datum) false)
