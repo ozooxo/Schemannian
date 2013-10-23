@@ -11,7 +11,7 @@ As a scheme/Racket based package for symbolic mathematics for physicist, "Schema
 Test Environment
 ================
 
-"Schemannian" is written and debugged using `Racket`_ v5.3.1 in a 64-bit Ubuntu 13.04 (Raring Ringtail) computer. Racket is installed by the default setting of ``sudo apt-get install racket``.
+"Schemannian" is written and debugged using a `Racket`_ v5.3.1 in a 64-bit Ubuntu 13.04 (Raring Ringtail) computer, and a v5.3.5 in a 32-bit Ubuntu 12.04 (Precise Pangolin) computer. Racket is installed by the default setting of ``sudo apt-get install racket``.
 
 .. _Racket: http://racket-lang.org/
 
