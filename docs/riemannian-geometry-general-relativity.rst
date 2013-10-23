@@ -134,7 +134,7 @@ For example, `curvature-surface-of-sphere.rkt`_ calculates the curvature on the 
     (define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
     (ricci-scalar g R_ab)
 
-And `curvature-schwarzschild.rkt`_ calculates the curvature of the Schwarzschild metric, which should give you ``'(scalar 0)`` (currently there are still bugs somewhere).
+And `curvature-schwarzschild.rkt`_ calculates the curvature of the Schwarzschild metric, which is ``'(scalar 0)`` (You can check the output by hand, although the current ``simplify`` function is a little bit too weak to actually get that).
 
 .. _curvature-schwarzschild.rkt: https://github.com/ozooxo/Schemannian/blob/master/examples/curvature-schwarzschild.rkt
 

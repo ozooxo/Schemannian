@@ -15,5 +15,6 @@
 (define R^a_bcd (riemann-tensor '((^ a) (_ b) (_ c) (_ d)) Gamma^a_bc '(t r theta phi)))
 ;R^a_bcd
 (define R_ab (ricci-curvature-tensor '((_ a) (_ b)) R^a_bcd))
-R_ab ;It should already be zero, which is not true here.
-;(ricci-scalar g R_ab)
+;R_ab
+(ricci-scalar g R_ab) ;By checking the result by hand, it is actually zero.
+                      ;Although the current simplify function cannot get it.
