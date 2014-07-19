@@ -4,7 +4,7 @@ Schemannian
 
 As a scheme/Racket based package for symbolic mathematics for physicist, "Schemannian" currently supports a realization of Euler-Lagrangian Equation is classical physics, Riemannian geometry and General Relativity calculations, and simple Grassmannian Calculus.
 
-"Schemannian" is a project submitted to `Lisp In Summer Projects 2013`_.
+"Schemannian" won the first Jane Street prize of `Lisp In Summer Projects 2013`_.
 
 .. _Lisp In Summer Projects 2013: http://lispinsummerprojects.org/
 
